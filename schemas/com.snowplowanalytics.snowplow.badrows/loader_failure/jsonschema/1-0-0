@@ -16,9 +16,18 @@
       "maxLength": 128
     },
     "errors": {
-      "type": [ "array" ],
+      "type": "array",
       "items": {
-        "type": [ "string" ]
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "data": {}
+        },
+        "required": [ "schema", "data" ],
+        "additionalProperties": false
       }
     }
   },
