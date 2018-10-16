@@ -1,0 +1,55 @@
+{
+  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.snowplowanalytics.snplow.badrows",
+    "name": "iglu_violation",
+    "version": "1-0-0",
+    "format": "jsonschema"
+  },
+  "type": "object",
+  "properties": {
+    "payload": {
+      "type": "string"
+    },
+    "processor": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "errors": {
+      "type": [ "array" ],
+      "items": {
+        "type": [ "object" ],
+        "oneOf": [
+          {
+            "properties": {
+              "error": {
+                "enum": [ "INVALID_PAYLOAD" ]
+              },
+              "json": {
+                "type": [ "string" ],
+                "maxLength": 1024
+              }
+            },
+            "required": [ "error", "json" ],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "error": {
+                "enum": [ "INVALID_URI" ]
+              },
+              "uri": {
+                "type": [ "string" ],
+                "maxLength": 1024
+              }
+            },
+            "required": [ "error", "uri" ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": [ "payload", "processor", "errors" ],
+  "additionalProperties": false
+}
