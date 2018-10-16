@@ -52,13 +52,15 @@ object BadRow {
 
   case class EnrichmentError(name: String, message: String)
 
-  sealed trait IgluParseError
+  sealed trait IgluError
+
+  sealed trait IgluParseError extends IgluError
   object IgluParseError {
     case class InvalidPayload(original: Json) extends IgluParseError
     case class InvalidUri(uri: String) extends IgluParseError
   }
 
-  sealed trait IgluResolverError
+  sealed trait IgluResolverError extends IgluError
   object IgluResolverError {
     case class RegistryFailure(name: String, reason: String)
 
