@@ -6,18 +6,23 @@
     "version": "1-0-0",
     "format": "jsonschema"
   },
+  "description": "Post-enrichment failure where shredder or BQ loader failed schema validation",
   "type": "object",
   "properties": {
     "payload": {
+      "description": "The single event payload",
       "type": "string"
     },
     "processor": {
+      "description": "The application that produced the bad row",
       "type": "string",
       "maxLength": 128
     },
     "errors": {
+      "description": "The list of errors detected in the single event",
       "type": "array",
       "items": {
+        "description": "The self-describing JSON",
         "type": "object",
         "properties": {
           "schema": {

@@ -6,18 +6,23 @@
     "version": "1-0-0",
     "format": "jsonschema"
   },
+  "description": "Fourth validation level - a Schema Invalidation is a context or self-describing event that is not valid against its schema",
   "type": "object",
   "properties": {
     "payload": {
+      "description": "The single event payload",
       "type": "string"
     },
     "processor": {
+      "description": "The application that produced the bad row",
       "type": "string",
       "maxLength": 128
     },
     "errors": {
+      "description": "The list of errors detected in the single event",
       "type": "array",
       "items": {
+        "description": "The iglu resolver error",
         "type": "object",
         "oneOf": [
           {

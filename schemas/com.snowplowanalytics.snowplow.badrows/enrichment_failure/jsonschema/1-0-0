@@ -6,25 +6,32 @@
     "version": "1-0-0",
     "format": "jsonschema"
   },
+  "description": "Third validation level - an Enrichment Failure can be runtime or validation errors in the EnrichmentManager (these errors can usually just be retried)",
   "type": "object",
   "properties": {
     "payload": {
+      "description": "The single event payload",
       "type": "string"
     },
     "processor": {
+      "description": "The application that produced the bad row",
       "type": "string",
       "maxLength": 128
     },
     "errors": {
+      "description": "The list of errors detected in the single event",
       "type": "array",
       "items": {
+        "description": "The enrichment error",
         "type": "object",
         "properties": {
           "name": {
+            "description": "The error name",
             "type": "string",
             "maxLength": 1024
           },
           "message": {
+            "description": "The error message",
             "type": "string",
             "maxLength": 1024
           }

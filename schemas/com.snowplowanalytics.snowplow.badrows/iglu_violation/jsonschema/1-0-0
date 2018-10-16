@@ -6,18 +6,23 @@
     "version": "1-0-0",
     "format": "jsonschema"
   },
+  "description": "Second validation level - an Iglu Violation is any iglu protocol violation in a single event",
   "type": "object",
   "properties": {
     "payload": {
+      "description": "The single event payload",
       "type": "string"
     },
     "processor": {
+      "description": "The application that produced the bad row",
       "type": "string",
       "maxLength": 128
     },
     "errors": {
+      "description": "The list of errors detected in the single event",
       "type": "array",
       "items": {
+        "description": "The iglu parse error",
         "type": "object",
         "oneOf": [
           {

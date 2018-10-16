@@ -6,16 +6,20 @@
     "version": "1-0-0",
     "format": "jsonschema"
   },
+  "description": "Zero validation level - a Format Violation is a completely invalid payload, malformed HTTP, or something that cannot be parsed",
   "type": "object",
   "properties": {
     "payload": {
+      "description": "The full raw payload",
       "type": "string"
     },
     "processor": {
+      "description": "The application that produced the bad row",
       "type": "string",
       "maxLength": 128
     },
     "message": {
+      "description": "The validation message string",
       "type": "string",
       "maxLength": 1024
     }
