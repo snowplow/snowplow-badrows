@@ -15,7 +15,7 @@ package com.snowplowanalytics.snowplowbadrows
 
 import org.specs2.Specification
 
-class CheckSpec extends Specification { def is = s2"""
+class BadRow extends Specification { def is = s2"""
   One plus one test $e1
   """
 
