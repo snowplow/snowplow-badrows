@@ -15,22 +15,11 @@ import sbt._
 object Dependencies {
 
   object V {
-    // Scala
-    val scopt            = "3.6.0"
-    val scalaz7          = "7.0.9"
-    val json4sJackson    = "3.2.11"
-    // Scala (test only)
-    val specs2           = "2.3.13"
-    val scalazSpecs2     = "0.2"
-    val scalaCheck       = "1.12.2"
+    val igluCore         = "0.3.0"
+    val specs2           = "4.3.2"
   }
 
-  // Scala
-  val scopt            = "com.github.scopt"           %% "scopt"                     % V.scopt
-  val scalaz7          = "org.scalaz"                 %% "scalaz-core"               % V.scalaz7
-  val json4sJackson    = "org.json4s"                 %% "json4s-jackson"            % V.json4sJackson
+  val igluCoreCirce    = "com.snowplowanalytics"      %% "iglu-core-circe"          % V.igluCore
   // Scala (test only)
-  val specs2           = "org.specs2"                 %% "specs2"                    % V.specs2         % "test"
-  val scalazSpecs2     = "org.typelevel"              %% "scalaz-specs2"             % V.scalazSpecs2   % "test"
-  val scalaCheck       = "org.scalacheck"             %% "scalacheck"                % V.scalaCheck     % "test"
+  val specs2           = "org.specs2"                 %% "specs2-core"              % V.specs2         % "test"
 }
