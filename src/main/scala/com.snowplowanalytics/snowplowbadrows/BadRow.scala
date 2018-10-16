@@ -33,6 +33,12 @@ sealed trait BadRow {
   def payload: Payload
   /** Application that produced bad row (Spark Enrich, Stream Enrich, Loader) */
   def processor: Processor
+
+  def toJson: SelfDescribingData[Json] = this match {
+    case _: TrackerProtocolViolation =>
+      SelfDescribingData(TrackerProtocolViolationSchema, badRowEncoder(this))
+    case _ => ???
+  }
 }
 
 object BadRow {
