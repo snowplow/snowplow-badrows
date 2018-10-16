@@ -72,7 +72,6 @@ object BadRow {
   import IgluParseError._
   import IgluResolverError._
 
-
   /**
     * Zero validation level.
     * Completely invalid payload, malformed HTTP, something that cannot be parsed:
@@ -153,7 +152,6 @@ object BadRow {
   case class LoaderFailure(payload: Payload.Enriched, errors: NonEmptyList[SelfDescribingData[Json]], processor: Processor) extends BadRow  {
     def schema: SchemaKey = LoaderFailureSchema
   }
-
 
   val badRowEncoder: Encoder[BadRow] = Encoder.instance {
     case FormatViolation(payload, message, processor) => Json.fromFields(List(
