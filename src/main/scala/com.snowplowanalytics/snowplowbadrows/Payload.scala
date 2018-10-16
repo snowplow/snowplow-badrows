@@ -3,7 +3,7 @@ package com.snowplowanalytics.snowplowbadrows
 import java.time.Instant
 import java.util.Base64
 
-import io.circe.{Json, JsonObject}
+import io.circe.{Json, JsonObject, Encoder}
 
 sealed trait Payload {
   def asLine: String = this match {
@@ -12,6 +12,8 @@ sealed trait Payload {
     case Payload.SingleEvent(metadata, event) =>
       val eventJson = Json.fromJsonObject(JsonObject.fromMap(event.mapValues(Json.fromString))).noSpaces
       new String(Base64.getEncoder.encode((metadata.asTsv ++ "\t" ++ eventJson).getBytes))
+    case Payload.Enriched(data) =>
+      data
   }
 }
 
@@ -37,7 +39,10 @@ object Payload {
   case class RawPayload(metadata: CollectorMeta, rawEvent: String) extends Payload
   /** Valid GET/JSON */
   case class SingleEvent(metadata: CollectorMeta, event: Map[String, String]) extends Payload
-
+  /** Post enrichment failure (JSON or TSV) */
   case class Enriched(data: String) extends Payload
+
+  implicit val payloadEncoder: Encoder[Payload] =
+    Encoder.instance(payload => Json.fromString(payload.asLine))
 }
 

@@ -14,14 +14,11 @@
 package com.snowplowanalytics.snowplowbadrows
 
 import cats.data.NonEmptyList
-import cats.instances.list._
-import cats.instances.either._
-import cats.syntax.either._
 import cats.syntax.show._
-import cats.syntax.alternative._
 
 import io.circe.{Encoder, Json}
 import io.circe.syntax._
+import io.circe.generic.semiauto._
 
 import com.snowplowanalytics.iglu.core.{SchemaKey, SchemaVer, SelfDescribingData}
 import com.snowplowanalytics.iglu.core.circe.instances._
@@ -33,14 +30,11 @@ sealed trait BadRow {
   def payload: Payload
   /** Application that produced bad row (Spark Enrich, Stream Enrich, Loader) */
   def processor: Processor
+  /** Associated Iglu Schema */
+  def schema: SchemaKey
 
-  def toJson: SelfDescribingData[Json] = this match {
-    case _: TrackerProtocolViolation =>
-      SelfDescribingData(TrackerProtocolViolationSchema, badRowEncoder(this))
-    case _: IgluViolation =>
-      SelfDescribingData(IgluViolationSchema, badRowEncoder(this))
-    case _ => throw new NotImplementedError("BadRow#toJson is not complete")
-  }
+  def toJson: SelfDescribingData[Json] =
+    SelfDescribingData(this.schema, badRowEncoder(this))
 }
 
 object BadRow {
@@ -71,51 +65,42 @@ object BadRow {
   case class EnrichmentError(name: String, message: String)
 
   object EnrichmentError {
-    implicit val encoder: Encoder[EnrichmentError] = ???
+    implicit val encoder: Encoder[EnrichmentError] =
+      deriveEncoder[EnrichmentError]
   }
 
   import IgluParseError._
   import IgluResolverError._
-
-  def parseRawPayload(line: String): Either[FormatViolation, RawPayload] = ???
-  def parseCollectorPayloads(rawPayload: RawPayload): List[Either[TrackerProtocolViolation, CollectorPayload]] = ???
-  def parseSnowplowPayload(collectorPayload: CollectorPayload): Either[IgluViolation, SnowplowPayload] = ???
-
-  def enrich(payload: SnowplowPayload): Either[BadRow, Event] = ???
-
-
-  def process(line: String): Either[FormatViolation, (List[BadRow], List[Event])] =
-    for {
-      rawPayload                             <- parseRawPayload(line)
-      (trackerViolations, collectorPayloads)  = parseCollectorPayloads(rawPayload).separate
-      (igluViolations, snowplowPayloads)      = collectorPayloads.map(parseSnowplowPayload).separate
-      (bad, good)                             = snowplowPayloads.map(enrich).separate
-    } yield (trackerViolations ++ igluViolations ++ bad, good)
-
 
 
   /**
     * Zero validation level.
     * Completely invalid payload, malformed HTTP, something that cannot be parsed:
     * - truncation
+    * - collector's bad row e.g. exceeded limit (processor will be "scala-collector")
     * - garbage
     * - invalid URL query string encoding
     * - robots
     *
-    * Everything else if parsed into `RawPayload` can throw POST-bombs
+    * Everything else if parsed into `RawPayload` could throw POST-bombs
     */
-  case class FormatViolation(payload: Payload.RawPayload, message: String, processor: Processor) extends BadRow
+  case class FormatViolation(payload: Payload.RawPayload, message: String, processor: Processor) extends BadRow {
+    def schema: SchemaKey = FormatViolationSchema
+  }
 
   /**
     * First validation level.
     * Valid HTTP, but invalid Snowplow
     * - OPTIONS request
     * - unknown query parameters
+    * - any properties supposed to be self-describing are not JSON (but still can be non iglu-compatible)
     * - any runtime exceptions happened before `EnrichmentManager`
     *
     * @param payload full GET/POST payload
     */
-  case class TrackerProtocolViolation(payload: Payload.SingleEvent, message: String, processor: Processor) extends BadRow
+  case class TrackerProtocolViolation(payload: Payload.SingleEvent, message: String, processor: Processor) extends BadRow {
+    def schema: SchemaKey = TrackerProtocolViolationSchema
+  }
 
   /**
     * Second validation level.
@@ -127,7 +112,9 @@ object BadRow {
     *
     * @param payload single event payload
     */
-  case class IgluViolation(payload: Payload.SingleEvent, errors: NonEmptyList[IgluParseError], processor: Processor) extends BadRow
+  case class IgluViolation(payload: Payload.SingleEvent, errors: NonEmptyList[IgluParseError], processor: Processor) extends BadRow {
+    def schema: SchemaKey = IgluViolationSchema
+  }
 
   /**
     * Third validation level:
@@ -138,7 +125,9 @@ object BadRow {
     *
     * @param payload single event payload
     */
-  case class EnrichmentFailure(payload: Payload.SingleEvent, errors: NonEmptyList[EnrichmentError], processor: Processor) extends BadRow
+  case class EnrichmentFailure(payload: Payload.SingleEvent, errors: NonEmptyList[EnrichmentError], processor: Processor) extends BadRow {
+    def schema: SchemaKey = EnrichmentFailureSchema
+  }
 
   /**
     * Third validation level:
@@ -147,9 +136,13 @@ object BadRow {
     * - invalid property
     * - schema not found
     *
+    * Technically, can happen before and after `enrich` because several enrichments
+    * can add new schemas
     * @param payload single event payload (not just failed schema)
     */
-  case class SchemaInvalidation(payload: Payload.SingleEvent, errors: NonEmptyList[IgluResolverError], processor: Processor) extends BadRow
+  case class SchemaInvalidation(payload: Payload.SingleEvent, errors: NonEmptyList[IgluResolverError], processor: Processor) extends BadRow {
+    def schema: SchemaKey = SchemaInvalidationSchema
+  }
 
   /**
     * Post-enrichment failure:
@@ -157,11 +150,10 @@ object BadRow {
     *
     * @param payload enriched event (TSV or JSON)
     */
-  case class LoaderFailure(payload: String, errors: NonEmptyList[SelfDescribingData[Json]], processor: Processor)
+  case class LoaderFailure(payload: Payload.Enriched, errors: NonEmptyList[SelfDescribingData[Json]], processor: Processor) extends BadRow  {
+    def schema: SchemaKey = LoaderFailureSchema
+  }
 
-
-  implicit val payloadEncoder: Encoder[Payload] =
-    Encoder.instance(payload => Json.fromString(payload.asLine))
 
   val badRowEncoder: Encoder[BadRow] = Encoder.instance {
     case FormatViolation(payload, message, processor) => Json.fromFields(List(
@@ -181,6 +173,10 @@ object BadRow {
       "errors" -> errors.asJson,
       "processor" -> processor.asJson))
     case SchemaInvalidation(payload, errors, processor) => Json.fromFields(List(
+      "payload" -> (payload: Payload).asJson,
+      "errors" -> errors.asJson,
+      "processor" -> processor.asJson))
+    case LoaderFailure(payload, errors, processor) =>  Json.fromFields(List(
       "payload" -> (payload: Payload).asJson,
       "errors" -> errors.asJson,
       "processor" -> processor.asJson))

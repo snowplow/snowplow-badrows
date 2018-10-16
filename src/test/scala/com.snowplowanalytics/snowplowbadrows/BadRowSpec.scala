@@ -62,6 +62,7 @@ class BadRowSpec extends Specification { def is = s2"""
     val violation =
       BadRow.IgluViolation(SingleEvent(exampleCollector, payload), errors, "stream-enrich-0.11.0")
 
+    // Show invalid iglu payload (no `schema` key)
     val expected = json"""{
         "schema" : "iglu:com.snowplowanalytics.snowplow.badrows/iglu_violation/jsonschema/1-0-0",
         "data" : {
@@ -69,7 +70,7 @@ class BadRowSpec extends Specification { def is = s2"""
           "errors" : [
             {
               "error" : "INVALID_PAYLOAD",
-              "json" : {"data" : {}}
+              "original" : {"data" : {}}
             }
           ],
           "processor" : "stream-enrich-0.11.0"

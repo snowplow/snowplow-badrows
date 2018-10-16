@@ -7,28 +7,16 @@ import io.circe.syntax._
 
 import com.snowplowanalytics.iglu.core.SchemaKey
 
-import BadRow._
+import BadRow.{ ProcessingMessage, schemaKeyEncoder }
 
-sealed trait IgluError
+sealed trait IgluResolverError
 
-sealed trait IgluParseError extends IgluError
-object IgluParseError {
-  case class InvalidPayload(original: Json) extends IgluParseError
-  case class InvalidUri(uri: String) extends IgluParseError
-
-  implicit val encoder: Encoder[IgluParseError] = Encoder.instance {
-    case InvalidPayload(json) =>
-      Json.fromFields(List("error" -> "INVALID_PAYLOAD".asJson, "json" -> json))
-    case InvalidUri(uri) =>
-      Json.fromFields(List("error" -> "INVALID_URI".asJson, "uri" -> Json.fromString(uri)))
-  }
-}
-
-sealed trait IgluResolverError extends IgluError
 object IgluResolverError {
   case class RegistryFailure(name: String, reason: String)
 
+  /** Schema was not found (probably some registries respond with 500) */
   case class SchemaNotFound(schemaKey: SchemaKey, failures: NonEmptyList[RegistryFailure]) extends IgluResolverError
+  /** Schema was found somewhere, but resolver has invalidated instance with it */
   case class ValidationError(schemaKey: SchemaKey, processingMessage: ProcessingMessage) extends IgluResolverError
 
   implicit val registryFailureEncoder: Encoder[RegistryFailure] = Encoder.instance {
