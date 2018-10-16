@@ -48,7 +48,7 @@
                 }
               }
             },
-            "required": [ "error", "schemaKey", "failures" ],
+            "required": [ "error", "failures" ],
             "additionalProperties": false
           },
           {
@@ -65,10 +65,12 @@
                 "maxLength": 1024
               }
             },
-            "required": [ "error", "schemaKey", "processingMessage" ],
+            "required": [ "error", "processingMessage" ],
             "additionalProperties": false
           }
-        ]
+        ],
+        "required": [ "schemaKey" ],
+        "additionalProperties": false
       }
     }
   },
