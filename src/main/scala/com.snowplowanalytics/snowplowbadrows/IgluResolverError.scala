@@ -12,9 +12,10 @@ import BadRow.{ ProcessingMessage, schemaKeyEncoder }
 sealed trait IgluResolverError
 
 object IgluResolverError {
+  /** Not-found, 500, corrupted format */
   case class RegistryFailure(name: String, reason: String)
 
-  /** Schema was not found (probably some registries respond with 500) */
+  /** Schema was not found (probably some registries respond with 500 or schema is corrupted) */
   case class SchemaNotFound(schemaKey: SchemaKey, failures: NonEmptyList[RegistryFailure]) extends IgluResolverError
   /** Schema was found somewhere, but resolver has invalidated instance with it */
   case class ValidationError(schemaKey: SchemaKey, processingMessage: ProcessingMessage) extends IgluResolverError

@@ -95,7 +95,7 @@ object BadRow {
     * - any properties supposed to be self-describing are not JSON (but still can be non iglu-compatible)
     * - any runtime exceptions happened before `EnrichmentManager`
     *
-    * @param payload full GET/POST payload
+    * @param payload collector/method-agnostic single-event envelope
     */
   case class TrackerProtocolViolation(payload: Payload.SingleEvent, message: String, processor: Processor) extends BadRow {
     def schema: SchemaKey = TrackerProtocolViolationSchema
