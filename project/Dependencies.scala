@@ -15,11 +15,13 @@ import sbt._
 object Dependencies {
 
   object V {
+    val circe            = "0.9.0"
     val igluCore         = "0.3.0"
     val specs2           = "4.3.2"
   }
 
-  val igluCoreCirce    = "com.snowplowanalytics"      %% "iglu-core-circe"          % V.igluCore
+  val circeGeneric     = "io.circe"              %% "circe-generic"            % V.circe
+  val igluCoreCirce    = "com.snowplowanalytics" %% "iglu-core-circe"          % V.igluCore
   // Scala (test only)
-  val specs2           = "org.specs2"                 %% "specs2-core"              % V.specs2         % "test"
+  val specs2           = "org.specs2"            %% "specs2-core"              % V.specs2         % "test"
 }

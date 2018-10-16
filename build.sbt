@@ -13,6 +13,7 @@ lazy val root = project.in(file("."))
     ),
     libraryDependencies ++= Seq(
 
+      Dependencies.circeGeneric,
       Dependencies.igluCoreCirce,
       Dependencies.specs2
     )
