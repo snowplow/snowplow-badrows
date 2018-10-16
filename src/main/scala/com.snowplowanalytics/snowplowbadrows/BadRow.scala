@@ -37,7 +37,9 @@ sealed trait BadRow {
   def toJson: SelfDescribingData[Json] = this match {
     case _: TrackerProtocolViolation =>
       SelfDescribingData(TrackerProtocolViolationSchema, badRowEncoder(this))
-    case _ => ???
+    case _: IgluViolation =>
+      SelfDescribingData(IgluViolationSchema, badRowEncoder(this))
+    case _ => throw new NotImplementedError("BadRow#toJson is not complete")
   }
 }
 
