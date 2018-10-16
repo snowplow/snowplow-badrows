@@ -1,7 +1,7 @@
 {
   "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
   "self": {
-    "vendor": "com.snowplowanalytics.snplow.badrows",
+    "vendor": "com.snowplowanalytics.snowplow.badrows",
     "name": "iglu_violation",
     "version": "1-0-0",
     "format": "jsonschema"
