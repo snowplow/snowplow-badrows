@@ -16,9 +16,9 @@
       "maxLength": 128
     },
     "errors": {
-      "type": [ "array" ],
+      "type": "array",
       "items": {
-        "type": [ "object" ],
+        "type": "object",
         "oneOf": [
           {
             "properties": {
@@ -26,13 +26,13 @@
                 "enum": [ "SCHEMA_NOT_FOUND" ]
               },
               "schemaKey": {
-                "type": [ "string" ],
+                "type": "string",
                 "maxLength": 1024
               },
               "failures": {
-                "type": [ "array" ],
+                "type": "array",
                 "items": {
-                  "type": [ "object" ],
+                  "type": "object",
                   "properties": {
                     "name": {
                       "type": "string",
@@ -57,11 +57,11 @@
                 "enum": [ "VALIDATION_ERROR" ]
               },
               "schemaKey": {
-                "type": [ "string" ],
+                "type": "string",
                 "maxLength": 1024
               },
               "processingMessage": {
-                "type": [ "string" ],
+                "type": "string",
                 "maxLength": 1024
               }
             },

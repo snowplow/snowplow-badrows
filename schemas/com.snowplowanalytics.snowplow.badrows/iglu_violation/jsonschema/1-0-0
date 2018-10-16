@@ -16,9 +16,9 @@
       "maxLength": 128
     },
     "errors": {
-      "type": [ "array" ],
+      "type": "array",
       "items": {
-        "type": [ "object" ],
+        "type": "object",
         "oneOf": [
           {
             "properties": {
@@ -26,7 +26,7 @@
                 "enum": [ "INVALID_PAYLOAD" ]
               },
               "json": {
-                "type": [ "string" ],
+                "type": "string",
                 "maxLength": 1024
               }
             },
@@ -39,7 +39,7 @@
                 "enum": [ "INVALID_URI" ]
               },
               "uri": {
-                "type": [ "string" ],
+                "type": "string",
                 "maxLength": 1024
               }
             },
