@@ -1,0 +1,84 @@
+{
+  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.snowplowanalytics.snowplow.badrows",
+    "name": "schema_invalidation",
+    "version": "1-0-0",
+    "format": "jsonschema"
+  },
+  "description": "Fourth validation level - a Schema Invalidation is a context or self-describing event that is not valid against its schema",
+  "type": "object",
+  "properties": {
+    "payload": {
+      "description": "The single event payload",
+      "type": "string"
+    },
+    "processor": {
+      "description": "The application that produced the bad row",
+      "type": "string",
+      "maxLength": 128
+    },
+    "errors": {
+      "description": "The list of errors detected in the single event",
+      "type": "array",
+      "items": {
+        "description": "The iglu resolver error",
+        "type": "object",
+        "oneOf": [
+          {
+            "properties": {
+              "error": {
+                "enum": [ "SCHEMA_NOT_FOUND" ]
+              },
+              "schemaKey": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "failures": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    "reason": {
+                      "type": "string",
+                      "maxLength": 1024
+                    }
+                  },
+                  "required": [ "name", "reason" ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [ "error", "failures" ],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "error": {
+                "enum": [ "VALIDATION_ERROR" ]
+              },
+              "schemaKey": {
+                "type": "string",
+                "maxLength": 1024
+              },
+              "processingMessage": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            },
+            "required": [ "error", "processingMessage" ],
+            "additionalProperties": false
+          }
+        ],
+        "required": [ "schemaKey" ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [ "payload", "processor", "errors" ],
+  "additionalProperties": false
+}

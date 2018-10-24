@@ -1,0 +1,60 @@
+{
+  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  "self": {
+    "vendor": "com.snowplowanalytics.snowplow.badrows",
+    "name": "iglu_violation",
+    "version": "1-0-0",
+    "format": "jsonschema"
+  },
+  "description": "Second validation level - an Iglu Violation is any iglu protocol violation in a single event",
+  "type": "object",
+  "properties": {
+    "payload": {
+      "description": "The single event payload",
+      "type": "string"
+    },
+    "processor": {
+      "description": "The application that produced the bad row",
+      "type": "string",
+      "maxLength": 128
+    },
+    "errors": {
+      "description": "The list of errors detected in the single event",
+      "type": "array",
+      "items": {
+        "description": "The iglu parse error",
+        "type": "object",
+        "oneOf": [
+          {
+            "properties": {
+              "error": {
+                "enum": [ "INVALID_PAYLOAD" ]
+              },
+              "json": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            },
+            "required": [ "error", "json" ],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "error": {
+                "enum": [ "INVALID_URI" ]
+              },
+              "uri": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            },
+            "required": [ "error", "uri" ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": [ "payload", "processor", "errors" ],
+  "additionalProperties": false
+}
