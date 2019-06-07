@@ -21,9 +21,9 @@ object Dependencies {
   }
 
   val circeGeneric     = "io.circe"              %% "circe-generic"            % V.circe
-  val circeJawn        = "io.circe"              %% "circe-jawn"               % V.circe          % "test"
-  val circeLiteral     = "io.circe"              %% "circe-literal"            % V.circe          % "test"
   val igluCoreCirce    = "com.snowplowanalytics" %% "iglu-core-circe"          % V.igluCore
   // Scala (test only)
+  val circeJawn        = "io.circe"              %% "circe-jawn"               % V.circe          % "test"
+  val circeLiteral     = "io.circe"              %% "circe-literal"            % V.circe          % "test"
   val specs2           = "org.specs2"            %% "specs2-core"              % V.specs2         % "test"
 }
