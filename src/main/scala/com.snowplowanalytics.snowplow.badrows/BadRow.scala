@@ -13,13 +13,8 @@
 
 package com.snowplowanalytics.snowplow.badrows
 
-import com.snowplowanalytics.iglu.core.SchemaKey
-
 sealed trait BadRow {
-  /** Everything necessary to recover/fix event(s) */
   def payload: Payload
-  /** Application that produced bad row (Spark Enrich, Stream Enrich, Loader) */
+  def failure: Failure
   def processor: Processor
-  /** Associated Iglu Schema */
-  def schema: SchemaKey
 }

@@ -1,6 +1,7 @@
 
 lazy val circeVersion = "0.11.1"
 lazy val igluCoreVersion = "0.5.1"
+lazy val igluClientVersion = "0.6.0-M7"
 lazy val specs2Version = "4.5.1"
 
 lazy val root = project.in(file("."))
@@ -17,12 +18,14 @@ lazy val root = project.in(file("."))
     ),
     libraryDependencies ++= (Seq(
       "io.circe" %% "circe-generic",
+      "io.circe" %% "circe-java8",
       "io.circe" %% "circe-jawn",
       "io.circe" %% "circe-literal"
     ).map(_ % circeVersion) match {
-      case h :: t => h :: t.map(_ % Test)
+      case h1 :: h2 :: t => h1 :: h2 :: t.map(_ % Test)
     }) ++ Seq(
       "com.snowplowanalytics" %% "iglu-core-circe" % igluCoreVersion,
-      "org.specs2" %% "specs2-core" % specs2Version
+      "com.snowplowanalytics" %% "iglu-scala-client" % igluClientVersion,
+      "org.specs2" %% "specs2-core" % specs2Version % Test
     )
   )
