@@ -13,8 +13,8 @@
 
 package com.snowplowanalytics.snowplow.badrows
 
-sealed trait BadRow {
-  def payload: Payload
-  def failure: Failure
-  def processor: Processor
-}
+final case class BadRow(
+  payload: Payload,
+  failure: Failure,
+  processor: Processor
+)
