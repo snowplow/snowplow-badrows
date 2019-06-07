@@ -1,4 +1,4 @@
-package com.snowplowanalytics.snowplowbadrows
+package com.snowplowanalytics.snowplow.badrows
 
 import java.time.Instant
 import java.util.Base64
