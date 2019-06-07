@@ -1,7 +1,7 @@
 
 lazy val circeVersion = "0.11.1"
 lazy val igluCoreVersion = "0.5.1"
-lazy val specs2Version = "4.3.2"
+lazy val specs2Version = "4.5.1"
 
 lazy val root = project.in(file("."))
   .settings(
