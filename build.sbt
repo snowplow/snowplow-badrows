@@ -1,3 +1,8 @@
+
+lazy val circeVersion = "0.11.1"
+lazy val igluCoreVersion = "0.3.0"
+lazy val specs2Version = "4.3.2"
+
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplowbadrows",
@@ -10,11 +15,14 @@ lazy val root = project.in(file("."))
     resolvers ++= Seq(
       "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
     ),
-    libraryDependencies ++= Seq(
-      Dependencies.circeJawn,
-      Dependencies.circeLiteral,
-      Dependencies.circeGeneric,
-      Dependencies.igluCoreCirce,
-      Dependencies.specs2
+    libraryDependencies ++= (Seq(
+      "io.circe" %% "circe-generic",
+      "io.circe" %% "circe-jawn",
+      "io.circe" %% "circe-literal"
+    ).map(_ % circeVersion) match {
+      case h :: t => h :: t.map(_ % Test)
+    }) ++ Seq(
+      "com.snowplowanalytics" %% "iglu-core-circe" % igluCoreVersion,
+      "org.specs2" %% "specs2-core" % specs2Version
     )
   )
