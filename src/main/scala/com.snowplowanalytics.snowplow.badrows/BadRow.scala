@@ -13,8 +13,15 @@
 
 package com.snowplowanalytics.snowplow.badrows
 
-sealed trait BadRow {
-  def payload: Payload
-  def failure: Failure
-  def processor: Processor
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.semiauto._
+
+final case class BadRow(
+  failure: Failure,
+  payload: Payload,
+  processor: Processor
+)
+object BadRow {
+  implicit val badRowEncoder: Encoder[BadRow] = deriveEncoder
+  implicit val badRowDecoder: Decoder[BadRow] = deriveDecoder
 }
