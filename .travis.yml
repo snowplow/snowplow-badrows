@@ -1,17 +1,14 @@
 language: scala
 scala:
-- 2.11.11
+- 2.12.8
 jdk:
 - oraclejdk8
 script:
 - sbt test
-before_deploy:
-  - pip install --user release-manager==0.3.0
 deploy:
   skip_cleanup: true
   provider: script
-  script: ./.travis/deploy.sh $TRAVIS_TAG
+  script: "./.travis/deploy.sh $TRAVIS_TAG"
   on:
-    # Deploy iff some tag is specified
     tags: true
 
