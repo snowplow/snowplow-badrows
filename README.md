@@ -1,20 +1,12 @@
 # snowplow-badrows
 
-## Quickstart
-
-Assuming git, **[Vagrant][vagrant-install]** and **[VirtualBox][virtualbox-install]** installed:
-
-```bash
-host$ git clone https://github.com/snowplow/snowplowbadrows.git
-host$ cd snowplowbadrows
-host$ vagrant up && vagrant ssh
-guest$ cd /vagrant
-guest$ sbt test
-```
+[![License][license-image]][license]
+[![Maven Central][release-image]][release]
+[![Travis][travis-image]][travis]
 
 ## Copyright and License
 
-Snowplow snowplow-badrows is copyright 2017 Snowplow Analytics Ltd.
+Snowplow snowplow-badrows is copyright 2018-2019 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
@@ -26,14 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-[vagrant-install]: http://docs.vagrantup.com/v2/installation/index.html
-[virtualbox-install]: https://www.virtualbox.org/wiki/Downloads
-
-[travis]: https://travis-ci.org/snowplow/snowplowbadrows
-[travis-image]: https://travis-ci.org/snowplow/snowplowbadrows.png?branch=master
+[travis]: https://travis-ci.org/snowplow-incubator/snowplow-badrows
+[travis-image]: https://travis-ci.org/snowplow-incubator/snowplow-badrows.png?branch=master
 
 [license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
 [license]: http://www.apache.org/licenses/LICENSE-2.0
 
-[release-image]: http://img.shields.io/badge/release-0.1.0-rc1-blue.svg?style=flat
-[releases]: https://github.com/snowplow/snowplowbadrows/releases
+[release-image]: https://img.shields.io/maven-central/v/com.snowplowanalytics/snowplow-badrows_2.12.svg
+[releases]: https://maven-badges.herokuapp.com/maven-central/com.snowplowanalytics/snowplow-badrows_2.12
