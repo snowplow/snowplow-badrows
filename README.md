@@ -4,6 +4,8 @@
 [![Maven Central][release-image]][release]
 [![Travis][travis-image]][travis]
 
+This project holds the data model for the bad rows we can encounter in Snowplow.
+
 ## Copyright and License
 
 Snowplow snowplow-badrows is copyright 2018-2019 Snowplow Analytics Ltd.

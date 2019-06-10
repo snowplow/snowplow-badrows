@@ -18,16 +18,13 @@ lazy val specs2Version = "4.5.1"
 
 lazy val root = project.in(file("."))
   .settings(
-    name := "snowplowbadrows",
+    name := "snowplow-badrows",
     version := "0.1.0-M1",
     organization := "com.snowplowanalytics",
-    scalaVersion := "2.12.8",
-    initialCommands := "import com.snowplowanalytics.snowplowbadrows._"
+    scalaVersion := "2.12.8"
   )
+  .settings(publishSettings)
   .settings(
-    resolvers ++= Seq(
-      "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
-    ),
     libraryDependencies ++= (Seq(
       "io.circe" %% "circe-generic",
       "io.circe" %% "circe-java8",
@@ -41,3 +38,25 @@ lazy val root = project.in(file("."))
       "org.specs2" %% "specs2-core" % specs2Version % Test
     )
   )
+
+lazy val publishSettings = Seq(
+  publishMavenStyle := true,
+  publishArtifact := true,
+  publishArtifact in Test := false,
+  licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+  bintrayOrganization := Some("snowplow"),
+  bintrayRepository := "snowplow-maven",
+  pomIncludeRepository := { _ => false },
+  homepage := Some(url("http://snowplowanalytics.com")),
+  scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/snowplow-badrows"),
+    "scm:git@github.com:snowplow-incubator/snowplow-badrows.git")),
+  pomExtra := (
+    <developers>
+      <developer>
+        <name>Snowplow Analytics Ltd</name>
+        <email>support@snowplowanalytics.com</email>
+        <organization>Snowplow Analytics Ltd</organization>
+        <organizationUrl>http://snowplowanalytics.com</organizationUrl>
+      </developer>
+    </developers>)
+)
