@@ -17,11 +17,14 @@ import java.time.Instant
 
 import io.circe.literal._
 import io.circe.syntax._
+
 import org.specs2.Specification
+
 import cats.data.NonEmptyList
 
 class FailureSpec extends Specification {
-  import Failure._
+  import FailureDetails._
+
   def is = s2"""
   encode CPFormatViolation $e1
   encode AdapterFailures $e2
@@ -32,10 +35,10 @@ class FailureSpec extends Specification {
 
   def e1 = {
     import CPFormatViolationMessage._
-    val f: Failure = CPFormatViolation(
+    val f: Failure = Failure.CPFormatViolation(
       Instant.ofEpochMilli(1000L),
       "tsv",
-      FallbackCPFormatViolationMessage("failure")
+      Fallback("failure")
     )
     val expected = json"""{
       "timestamp" : "1970-01-01T00:00:01Z",
@@ -49,11 +52,11 @@ class FailureSpec extends Specification {
 
   def e2 = {
     import AdapterFailure._
-    val f: Failure = AdapterFailures(
+    val f: Failure = Failure.AdapterFailures(
       Instant.ofEpochMilli(1000L),
       "com.hubspot",
       "v1",
-      NonEmptyList.one(NotSDAdapterFailure("{}", "not sd"))
+      NonEmptyList.one(NotSD("{}", "not sd"))
     )
     val expected = json"""{
       "timestamp" : "1970-01-01T00:00:01Z",
@@ -71,9 +74,9 @@ class FailureSpec extends Specification {
 
   def e3 = {
     import SchemaViolation._
-    val f: Failure = SchemaViolations(
+    val f: Failure = Failure.SchemaViolations(
       Instant.ofEpochMilli(1000L),
-      NonEmptyList.one(NotSDSchemaViolation("{}", "not sd"))
+      NonEmptyList.one(NotSD("{}", "not sd"))
     )
     val expected = json"""{
       "timestamp" : "1970-01-01T00:00:01Z",
@@ -89,9 +92,9 @@ class FailureSpec extends Specification {
 
   def e4 = {
     import EnrichmentFailureMessage._
-    val f: Failure = EnrichmentFailures(
+    val f: Failure = Failure.EnrichmentFailures(
       Instant.ofEpochMilli(1000L),
-      NonEmptyList.one(EnrichmentFailure(None, SimpleEnrichmentFailureMessage("invalid api key")))
+      NonEmptyList.one(EnrichmentFailure(None, Simple("invalid api key")))
     )
     val expected = json"""{
       "timestamp": "1970-01-01T00:00:01Z",
@@ -108,7 +111,7 @@ class FailureSpec extends Specification {
   }
 
   def e5 = {
-    val f: Failure = SizeViolation(
+    val f: Failure = Failure.SizeViolation(
       Instant.ofEpochMilli(1000L),
       200,
       400,

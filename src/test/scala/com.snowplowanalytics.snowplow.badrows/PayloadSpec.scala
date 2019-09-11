@@ -28,7 +28,7 @@ class PayloadSpec extends Specification {
 
   def e1 = {
     val p: Payload = RawPayload("ah")
-    val expected = json"""{"line" : "ah"}"""
+    val expected = json""""ah""""
     p.asJson must beEqualTo(expected)
   }
 
