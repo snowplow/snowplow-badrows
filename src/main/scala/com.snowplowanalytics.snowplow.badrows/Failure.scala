@@ -17,33 +17,45 @@ import java.time.Instant
 
 import cats.data.NonEmptyList
 import cats.syntax.functor._
-import com.snowplowanalytics.iglu.client.ClientError
-import com.snowplowanalytics.iglu.core.{SchemaCriterion, SchemaKey}
-import com.snowplowanalytics.iglu.core.circe.CirceIgluCodecs._
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto._
-import io.circe.java8.time._
 
-object SchemaCriterionExt {
-  implicit val encoder: Encoder[SchemaCriterion] = deriveEncoder
-  implicit val decoder: Decoder[SchemaCriterion] = deriveDecoder
-}
+import io.circe.{Encoder, Decoder}
+import io.circe.generic.semiauto._
+import io.circe.syntax._
+import io.circe.java8.time._
 
 sealed trait Failure
 object Failure {
+  import FailureDetails._
+
   implicit val encodeFailure: Encoder[Failure] = Encoder.instance {
-    case f: CPFormatViolation => deriveEncoder[CPFormatViolation].apply(f)
-    case f: AdapterFailures => deriveEncoder[AdapterFailures].apply(f)
-    case f: SchemaViolations => deriveEncoder[SchemaViolations].apply(f)
-    case f: EnrichmentFailures => deriveEncoder[EnrichmentFailures].apply(f)
-    case f: SizeViolation => deriveEncoder[SizeViolation].apply(f)
+    case f: CPFormatViolation => CPFormatViolation.failureCPFormatViolationJsonEncoder.apply(f)
+    case f: AdapterFailures => AdapterFailures.failureAdapterFailuresJsonEncoder.apply(f)
+    case f: TrackerProtocolViolations => TrackerProtocolViolations.failureTrackerProtocolViolationsJsonEncoder.apply(f)
+    case f: SchemaViolations => SchemaViolations.failureSchemaViolationsJsonEncoder.apply(f)
+    case f: EnrichmentFailures => EnrichmentFailures.failureEnrichmentFailuresJsonEncoder.apply(f)
+    case f: SizeViolation => SizeViolation.failureSizeViolationJsonEncoder.apply(f)
+    case f: LoaderParsingErrors => LoaderParsingErrors.failureLoaderParsingErrorsJsonEncoder.apply(f)
+    case f: LoaderIgluErrors => LoaderIgluErrors.failureLoaderIgluErrorsJsonEncoder.apply(f)
+    case f: BQCastErrors => BQCastErrors.failureBQCastErrorsJsonEncoder.apply(f)
+    case f: LoaderRuntimeErrors => LoaderRuntimeErrors.failureLoaderRuntimeErrorsJsonEncoder.apply(f)
+    case f: BQRepeaterParsingError => BQRepeaterParsingError.failureBQRepeaterParsingErrorJsonEncoder.apply(f)
+    case f: BQRepeaterPubSubError => BQRepeaterPubSubError.failureBQRepeaterPubSubErrorJsonEncoder.apply(f)
+    case f: BQRepeaterBigQueryError => BQRepeaterBigQueryError.failureBQRepeaterBigQueryErrorJsonEncoder.apply(f)
   }
   implicit val failureDecoder: Decoder[Failure] = List[Decoder[Failure]](
-    deriveDecoder[CPFormatViolation].widen,
-    deriveDecoder[AdapterFailures].widen,
-    deriveDecoder[SchemaViolations].widen,
-    deriveDecoder[EnrichmentFailures].widen,
-    deriveDecoder[SizeViolation].widen
+    CPFormatViolation.failureCPFormatViolationJsonDecoder.widen,
+    AdapterFailures.failureAdapterFailuresJsonDecoder.widen,
+    TrackerProtocolViolations.failureTrackerProtocolViolationsJsonDecoder.widen,
+    SchemaViolations.failureSchemaViolationsJsonDecoder.widen,
+    EnrichmentFailures.failureEnrichmentFailuresJsonDecoder.widen,
+    SizeViolation.failureSizeViolationJsonDecoder.widen,
+    LoaderParsingErrors.failureLoaderParsingErrorsJsonDecoder.widen,
+    LoaderIgluErrors.failureLoaderIgluErrorsJsonDecoder.widen,
+    BQCastErrors.failureBQCastErrorsJsonDecoder.widen,
+    LoaderRuntimeErrors.failureLoaderRuntimeErrorsJsonDecoder.widen,
+    BQRepeaterParsingError.failureBQRepeaterParsingErrorJsonDecoder.widen,
+    BQRepeaterPubSubError.failureBQRepeaterPubSubErrorJsonDecoder.widen,
+    BQRepeaterBigQueryError.failureBQRepeaterBigQueryErrorJsonDecoder.widen
   ).reduceLeft(_ or _)
 
   final case class CPFormatViolation(
@@ -51,6 +63,10 @@ object Failure {
     loader: String,
     message: CPFormatViolationMessage
   ) extends Failure
+  object CPFormatViolation {
+    implicit val failureCPFormatViolationJsonEncoder: Encoder[CPFormatViolation] = deriveEncoder
+    implicit val failureCPFormatViolationJsonDecoder: Decoder[CPFormatViolation] = deriveDecoder
+  }
 
   final case class AdapterFailures(
     timestamp: Instant,
@@ -58,12 +74,35 @@ object Failure {
     version: String,
     messages: NonEmptyList[AdapterFailure]
   ) extends Failure
+  object AdapterFailures {
+    implicit val failureAdapterFailuresJsonEncoder: Encoder[AdapterFailures] = deriveEncoder
+    implicit val failureAdapterFailuresJsonDecoder: Decoder[AdapterFailures] = deriveDecoder
+  }
+
+  final case class TrackerProtocolViolations(
+    timestamp: Instant,
+    vendor: String,
+    version: String,
+    messages: NonEmptyList[TrackerProtocolViolation]
+  ) extends Failure
+  object TrackerProtocolViolations {
+    implicit val failureTrackerProtocolViolationsJsonEncoder: Encoder[TrackerProtocolViolations] = deriveEncoder
+    implicit val failureTrackerProtocolViolationsJsonDecoder: Decoder[TrackerProtocolViolations] = deriveDecoder
+  }
 
   final case class SchemaViolations(timestamp: Instant, messages: NonEmptyList[SchemaViolation])
     extends Failure
+  object SchemaViolations {
+    implicit val failureSchemaViolationsJsonEncoder: Encoder[SchemaViolations] = deriveEncoder
+    implicit val failureSchemaViolationsJsonDecoder: Decoder[SchemaViolations] = deriveDecoder
+  }
 
   final case class EnrichmentFailures(timestamp: Instant, messages: NonEmptyList[EnrichmentFailure])
     extends Failure
+  object EnrichmentFailures {
+    implicit val failureEnrichmentFailuresJsonEncoder: Encoder[EnrichmentFailures] = deriveEncoder
+    implicit val failureEnrichmentFailuresJsonDecoder: Decoder[EnrichmentFailures] = deriveDecoder
+  }
 
   final case class SizeViolation(
     timestamp: Instant,
@@ -71,154 +110,82 @@ object Failure {
     actualSizeBytes: Int,
     expectation: String
   ) extends Failure
-}
-
-// COLLECTOR PAYLOAD FORMAT VIOLATION
-
-sealed trait CPFormatViolationMessage
-object CPFormatViolationMessage {
-  implicit val cpFormatViolationMessageEncoder: Encoder[CPFormatViolationMessage] =
-    Encoder.instance {
-      case f: InputDataCPFormatViolationMessage =>
-        deriveEncoder[InputDataCPFormatViolationMessage].apply(f)
-      case f: FallbackCPFormatViolationMessage =>
-        deriveEncoder[FallbackCPFormatViolationMessage].apply(f)
-    }
-  implicit val cpFormatViolationMessageDecoder: Decoder[CPFormatViolationMessage] =
-    List[Decoder[CPFormatViolationMessage]](
-      deriveDecoder[InputDataCPFormatViolationMessage].widen,
-      deriveDecoder[FallbackCPFormatViolationMessage].widen
-    ).reduceLeft(_ or _)
-
-  final case class InputDataCPFormatViolationMessage(
-    payloadField: String,
-    value: Option[String],
-    expectation: String
-  ) extends CPFormatViolationMessage
-
-  final case class FallbackCPFormatViolationMessage(error: String) extends CPFormatViolationMessage
-}
-
-// ADAPTER FAILURES
-
-sealed trait AdapterFailure
-object AdapterFailure {
-  import SchemaCriterionExt._
-  implicit val adapterFailureEncoder: Encoder[AdapterFailure] = Encoder.instance {
-    case f: IgluErrorAdapterFailure => deriveEncoder[IgluErrorAdapterFailure].apply(f)
-    case f: SchemaCritAdapterFailure => deriveEncoder[SchemaCritAdapterFailure].apply(f)
-    case f: NotJsonAdapterFailure => deriveEncoder[NotJsonAdapterFailure].apply(f)
-    case f: NotSDAdapterFailure => deriveEncoder[NotSDAdapterFailure].apply(f)
-    case f: InputDataAdapterFailure => deriveEncoder[InputDataAdapterFailure].apply(f)
-    case f: SchemaMappingAdapterFailure => deriveEncoder[SchemaMappingAdapterFailure].apply(f)
+  object SizeViolation {
+    implicit val failureSizeViolationJsonEncoder: Encoder[SizeViolation] = deriveEncoder
+    implicit val failureSizeViolationJsonDecoder: Decoder[SizeViolation] = deriveDecoder
   }
-  implicit val adapterFailureDecoder: Decoder[AdapterFailure] = List[Decoder[AdapterFailure]](
-    deriveDecoder[IgluErrorAdapterFailure].widen,
-    deriveDecoder[SchemaCritAdapterFailure].widen,
-    deriveDecoder[NotJsonAdapterFailure].widen,
-    deriveDecoder[NotSDAdapterFailure].widen,
-    deriveDecoder[InputDataAdapterFailure].widen,
-    deriveDecoder[SchemaMappingAdapterFailure].widen
-  ).reduceLeft(_ or _)
 
-  // tracker protocol
-  final case class IgluErrorAdapterFailure(schemaKey: SchemaKey, error: ClientError)
-      extends AdapterFailure
-  final case class SchemaCritAdapterFailure(schemaKey: SchemaKey, schemaCriterion: SchemaCriterion)
-      extends AdapterFailure
-  // both tp and webhook
-  final case class NotJsonAdapterFailure(
-    field: String,
-    value: Option[String],
-    error: String
-  ) extends AdapterFailure
-  final case class NotSDAdapterFailure(json: String, error: String) extends AdapterFailure
-  final case class InputDataAdapterFailure(
-    field: String,
-    value: Option[String],
-    expectation: String
-  ) extends AdapterFailure
-  // webhook adapters
-  final case class SchemaMappingAdapterFailure(
-    actual: Option[String],
-    expectedMapping: Map[String, String],
-    expectation: String
-  ) extends AdapterFailure
-}
-
-// SCHEMA VIOLATIONS
-
-sealed trait EnrichmentStageIssue
-
-sealed trait SchemaViolation extends EnrichmentStageIssue
-object SchemaViolation {
-  import SchemaCriterionExt._
-  implicit val schemaViolationEncoder: Encoder[SchemaViolation] = Encoder.instance {
-    case f: NotJsonSchemaViolation => deriveEncoder[NotJsonSchemaViolation].apply(f)
-    case f: NotSDSchemaViolation => deriveEncoder[NotSDSchemaViolation].apply(f)
-    case f: IgluErrorSchemaViolation => deriveEncoder[IgluErrorSchemaViolation].apply(f)
-    case f: SchemaCritSchemaViolation => deriveEncoder[SchemaCritSchemaViolation].apply(f)
+  /**
+    * Represents the failure case where data can not be parsed as a proper event
+    * @param errors  errors in the end of the parsing process
+    */
+  final case class LoaderParsingErrors(errors: NonEmptyList[String]) extends Failure
+  object LoaderParsingErrors {
+    implicit val failureLoaderParsingErrorsJsonEncoder: Encoder[LoaderParsingErrors] = Encoder.instance(_.errors.asJson)
+    implicit val failureLoaderParsingErrorsJsonDecoder: Decoder[LoaderParsingErrors] = Decoder.instance(_.as[NonEmptyList[String]].map(LoaderParsingErrors(_)))
   }
-  implicit val schemaViolationDecoder: Decoder[SchemaViolation] = List[Decoder[SchemaViolation]](
-    deriveDecoder[NotJsonSchemaViolation].widen,
-    deriveDecoder[NotSDSchemaViolation].widen,
-    deriveDecoder[IgluErrorSchemaViolation].widen,
-    deriveDecoder[SchemaCritSchemaViolation].widen
-  ).reduceLeft(_ or _)
 
-  final case class NotJsonSchemaViolation(
-    field: String,
-    value: Option[String],
-    error: String
-  ) extends SchemaViolation
+  /**
+    * Represents errors which occurs when making validation
+    * against a schema with Iglu client
+    */
+  final case class LoaderIgluErrors(errors: NonEmptyList[LoaderIgluError]) extends Failure
+  object LoaderIgluErrors {
+    implicit val failureLoaderIgluErrorsJsonEncoder: Encoder[LoaderIgluErrors] = Encoder.instance(_.errors.asJson)
+    implicit val failureLoaderIgluErrorsJsonDecoder: Decoder[LoaderIgluErrors] = Decoder.instance(_.as[NonEmptyList[LoaderIgluError]].map(LoaderIgluErrors(_)))
+  }
 
-  final case class NotSDSchemaViolation(json: String, error: String) extends SchemaViolation
+  /**
+    * Represents errors which occurs when trying to turn JSON value
+    * into BigQuery-compatible row
+    */
+  final case class BQCastErrors(errors: NonEmptyList[BQCastError]) extends Failure
+  object BQCastErrors {
+    implicit val failureBQCastErrorsJsonEncoder: Encoder[BQCastErrors] = Encoder.instance(_.errors.asJson)
+    implicit val failureBQCastErrorsJsonDecoder: Decoder[BQCastErrors] = Decoder.instance(_.as[NonEmptyList[BQCastError]].map(BQCastErrors(_)))
+  }
 
-  final case class IgluErrorSchemaViolation(schemaKey: SchemaKey, error: ClientError)
-      extends SchemaViolation
+  /**
+    * Represents errors which are not expected to happen. For example,
+    * if some error happens during parsing the schema json to Ddl schema,
+    * this is due to some bugs in SchemaDDL library which is unlikely to
+    * happen. Therefore, these types error collected under one type of error
+    */
+  final case class LoaderRuntimeErrors(error: String) extends Failure
+  object LoaderRuntimeErrors {
+    implicit val failureLoaderRuntimeErrorsJsonEncoder: Encoder[LoaderRuntimeErrors] = Encoder.instance(_.error.asJson)
+    implicit val failureLoaderRuntimeErrorsJsonDecoder: Decoder[LoaderRuntimeErrors] = Decoder.instance(_.as[String].map(LoaderRuntimeErrors(_)))
+  }
 
-  final case class SchemaCritSchemaViolation(schemaKey: SchemaKey, schemaCriterion: SchemaCriterion)
-      extends SchemaViolation
+  /**
+    * Represents situations where payload object can not be
+    * converted back to enriched event format successfully
+    * @param message error message
+    * @param location location in the JSON object where error happened
+    */
+  final case class BQRepeaterParsingError(message: String, location: List[String]) extends Failure
+  object BQRepeaterParsingError {
+    implicit val failureBQRepeaterParsingErrorJsonEncoder: Encoder[BQRepeaterParsingError] = deriveEncoder
+    implicit val failureBQRepeaterParsingErrorJsonDecoder: Decoder[BQRepeaterParsingError] = deriveDecoder
+  }
+
+  /**
+    * Represents error which occurs while trying to fetch events
+    * from PubSub topic
+    */
+  final case class BQRepeaterPubSubError(error: String) extends Failure
+  object BQRepeaterPubSubError {
+    implicit val failureBQRepeaterPubSubErrorJsonEncoder: Encoder[BQRepeaterPubSubError] = Encoder.instance(_.error.asJson)
+    implicit val failureBQRepeaterPubSubErrorJsonDecoder: Decoder[BQRepeaterPubSubError] = Decoder.instance(_.as[String].map(BQRepeaterPubSubError(_)))
+  }
+
+  /**
+    * Represents errors which occurs while trying to insert the event
+    * to BigQuery via BigQuery SDK
+    */
+  final case class BQRepeaterBigQueryError(reason: Option[String], location: Option[String], message: String) extends Failure
+  object BQRepeaterBigQueryError {
+    implicit val failureBQRepeaterBigQueryErrorJsonEncoder: Encoder[BQRepeaterBigQueryError] = deriveEncoder
+    implicit val failureBQRepeaterBigQueryErrorJsonDecoder: Decoder[BQRepeaterBigQueryError] = deriveDecoder
+  }
 }
-
-// ENRICHMENT FAILURES
-
-final case class EnrichmentFailure(
-  enrichment: Option[EnrichmentInformation],
-  message: EnrichmentFailureMessage
-) extends EnrichmentStageIssue
-object EnrichmentFailure {
-  implicit val enrichmentFailureEncoder: Encoder[EnrichmentFailure] = deriveEncoder
-  implicit val enrichmentFailureDecoder: Decoder[EnrichmentFailure] = deriveDecoder
-}
-
-sealed trait EnrichmentFailureMessage
-object EnrichmentFailureMessage {
-  implicit val enrichmentFailureMessageEncoder: Encoder[EnrichmentFailureMessage] =
-    Encoder.instance {
-      case f: SimpleEnrichmentFailureMessage =>
-        deriveEncoder[SimpleEnrichmentFailureMessage].apply(f)
-      case f: InputDataEnrichmentFailureMessage =>
-        deriveEncoder[InputDataEnrichmentFailureMessage].apply(f)
-    }
-  implicit val enrichmentFailureMessageDecoder: Decoder[EnrichmentFailureMessage] =
-    List[Decoder[EnrichmentFailureMessage]](
-      deriveDecoder[SimpleEnrichmentFailureMessage].widen,
-      deriveDecoder[InputDataEnrichmentFailureMessage].widen
-    ).reduceLeft(_ or _)
-
-  final case class SimpleEnrichmentFailureMessage(error: String) extends EnrichmentFailureMessage
-
-  final case class InputDataEnrichmentFailureMessage(
-    field: String,
-    value: Option[String],
-    expectation: String
-  ) extends EnrichmentFailureMessage
-}
-
-final case class EnrichmentInformation(schemaKey: SchemaKey, identifier: String)
-object EnrichmentInformation {
-  implicit val enrichmentInformationEncoder: Encoder[EnrichmentInformation] = deriveEncoder
-  implicit val enrichmentInformationDecoder: Decoder[EnrichmentInformation] = deriveDecoder
-}
-

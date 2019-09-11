@@ -14,7 +14,9 @@
 lazy val circeVersion = "0.11.1"
 lazy val igluCoreVersion = "0.5.1"
 lazy val igluClientVersion = "0.6.0-M7"
-lazy val specs2Version = "4.5.1"
+lazy val specs2Version = "4.7.0"
+lazy val analyticsSdk = "1.0.0-M1"
+lazy val scalaCheck = "1.14.0"
 
 lazy val root = project.in(file("."))
   .settings(
@@ -35,7 +37,10 @@ lazy val root = project.in(file("."))
     }) ++ Seq(
       "com.snowplowanalytics" %% "iglu-core-circe" % igluCoreVersion,
       "com.snowplowanalytics" %% "iglu-scala-client" % igluClientVersion,
-      "org.specs2" %% "specs2-core" % specs2Version % Test
+      "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % analyticsSdk,
+      "org.specs2" %% "specs2-core" % specs2Version % Test,
+      "org.specs2" %% "specs2-scalacheck" % specs2Version % Test,
+      "org.scalacheck" %% "scalacheck" % scalaCheck % Test
     )
   )
 
