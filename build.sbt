@@ -21,7 +21,7 @@ lazy val scalaCheck = "1.14.0"
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
-    version := "0.1.0-M3",
+    version := "0.1.0-M4",
     organization := "com.snowplowanalytics",
     scalaVersion := "2.12.8"
   )
