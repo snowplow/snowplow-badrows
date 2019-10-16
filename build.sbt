@@ -22,7 +22,7 @@ resolvers += "Snowplow Bintray" at "https://snowplow.bintray.com/snowplow-maven"
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
-    version := "0.1.0-M1",
+    version := "0.1.0-M5",
     organization := "com.snowplowanalytics",
     scalaVersion := "2.12.8"
   )
