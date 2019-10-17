@@ -13,7 +13,7 @@
 
 lazy val circeVersion = "0.11.1"
 lazy val igluClientVersion = "0.6.1-M1"
-lazy val analyticsSdk = "1.0.0-M1"
+lazy val analyticsSdk = "1.0.0-M2"
 lazy val specs2Version = "4.7.0"
 lazy val scalaCheck = "1.14.0"
 
