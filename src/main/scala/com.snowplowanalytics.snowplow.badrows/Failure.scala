@@ -10,7 +10,6 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-
 package com.snowplowanalytics.snowplow.badrows
 
 import java.time.Instant
@@ -24,6 +23,7 @@ import io.circe.syntax._
 import io.circe.java8.time._
 
 sealed trait Failure
+
 object Failure {
   import FailureDetails._
 
@@ -93,15 +93,19 @@ object Failure {
   final case class SchemaViolations(timestamp: Instant, messages: NonEmptyList[SchemaViolation])
     extends Failure
   object SchemaViolations {
-    implicit val failureSchemaViolationsJsonEncoder: Encoder[SchemaViolations] = deriveEncoder
-    implicit val failureSchemaViolationsJsonDecoder: Decoder[SchemaViolations] = deriveDecoder
+    implicit val failureSchemaViolationsJsonEncoder: Encoder[SchemaViolations] =
+      deriveEncoder[SchemaViolations]
+    implicit val failureSchemaViolationsJsonDecoder: Decoder[SchemaViolations] =
+      deriveDecoder[SchemaViolations]
   }
 
   final case class EnrichmentFailures(timestamp: Instant, messages: NonEmptyList[EnrichmentFailure])
     extends Failure
   object EnrichmentFailures {
-    implicit val failureEnrichmentFailuresJsonEncoder: Encoder[EnrichmentFailures] = deriveEncoder
-    implicit val failureEnrichmentFailuresJsonDecoder: Decoder[EnrichmentFailures] = deriveDecoder
+    implicit val failureEnrichmentFailuresJsonEncoder: Encoder[EnrichmentFailures] =
+      deriveEncoder[EnrichmentFailures]
+    implicit val failureEnrichmentFailuresJsonDecoder: Decoder[EnrichmentFailures] =
+      deriveDecoder[EnrichmentFailures]
   }
 
   final case class SizeViolation(
@@ -111,8 +115,10 @@ object Failure {
     expectation: String
   ) extends Failure
   object SizeViolation {
-    implicit val failureSizeViolationJsonEncoder: Encoder[SizeViolation] = deriveEncoder
-    implicit val failureSizeViolationJsonDecoder: Decoder[SizeViolation] = deriveDecoder
+    implicit val failureSizeViolationJsonEncoder: Encoder[SizeViolation] =
+      deriveEncoder[SizeViolation]
+    implicit val failureSizeViolationJsonDecoder: Decoder[SizeViolation] =
+      deriveDecoder[SizeViolation]
   }
 
   /**

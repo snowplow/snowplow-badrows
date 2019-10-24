@@ -1,260 +1,105 @@
+/*
+ * Copyright (c) 2018-2019 Snowplow Analytics Ltd. All rights reserved.
+ *
+ * This program is licensed to you under the Apache License Version 2.0,
+ * and you may not use this file except in compliance with the Apache License Version 2.0.
+ * You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Apache License Version 2.0 is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+ */
 package com.snowplowanalytics.snowplow.badrows
 
-import cats.data.NonEmptyList
+import java.net.URI
+
+import cats.Id
+
 import io.circe.literal._
 import io.circe.syntax._
 import io.circe.{Json, parser, Decoder, Encoder}
-import com.snowplowanalytics.iglu.client.ClientError.ValidationError
-import com.snowplowanalytics.iglu.client.validator.ValidatorError.InvalidData
-import com.snowplowanalytics.iglu.client.validator.ValidatorReport
-import com.snowplowanalytics.iglu.client.{CirceValidator, Resolver}
-import com.snowplowanalytics.iglu.core.{SchemaKey, SchemaVer}
-import org.scalacheck.Gen
+
 import org.scalacheck.Prop.forAll
-import org.specs2.{ScalaCheck, Specification}
+
+import org.specs2.ScalaCheck
+import org.specs2.mutable.Specification
+
+import com.snowplowanalytics.iglu.client.{CirceValidator, Resolver}
+import com.snowplowanalytics.iglu.client.resolver.registries.Registry
+
 import SpecHelpers.IdInstances._
+import generators.BadRowGen
+
+class SchemaValidationSpec extends Specification with ScalaCheck {
+  import SchemaValidationSpec._
+
+  "Stream Collector" >> {
+    s"${Schemas.SizeViolation.toSchemaUri} (SizeViolation)" >>
+      forAll(BadRowGen.sizeViolation) { f => validateBadRow[BadRow.SizeViolation](f) must beRight }
+  }
+
+  "Scala Common Enrich 1.0.0" >> {
+    s"${Schemas.CPFormatViolation.toSchemaUri} (CPFormatViolation)" >>
+       forAll(BadRowGen.cpFormatViolation) { f => validateBadRow[BadRow.CPFormatViolation](f) must beRight }
+
+     s"${Schemas.AdapterFailures.toSchemaUri} (AdapterFailures)" >>
+       forAll(BadRowGen.adapterFailures) { f => validateBadRow[BadRow.AdapterFailures](f) must beRight }
+
+     s"${Schemas.TrackerProtocolViolations.toSchemaUri} (TrackerProtocolViolations)" >>
+       forAll(BadRowGen.trackerProtocolViolations) { f => validateBadRow[BadRow.TrackerProtocolViolations](f) must beRight }
+
+     s"${Schemas.SchemaViolations.toSchemaUri} (SchemaViolations)" >>
+       forAll(BadRowGen.schemaViolations) { f => validateBadRow[BadRow.SchemaViolations](f) must beRight }
+
+     s"${Schemas.EnrichmentFailures.toSchemaUri} (EnrichmentFailures)" >>
+       forAll(BadRowGen.enrichmentFailures) { f => validateBadRow[BadRow.EnrichmentFailures](f) must beRight }
+  }
+
+  "BigQuery Loader 0.2.0" >> {
+    s"${Schemas.BQCastError.toSchemaUri} (BQCastErrors)" >>
+      skipped("Until BQ Loader 0.2.0 ")
+
+    s"${Schemas.BQRepeaterParsingError.toSchemaUri} (BQRepeaterParsingError)" >>
+      skipped("Until BQ Loader 0.2.0 ")
+
+    s"${Schemas.BQRepeaterPubSubError.toSchemaUri} (BQRepeaterPubSubError)" >>
+      skipped("Until BQ Loader 0.2.0 ")
+
+    s"${Schemas.BQRepeaterBigQueryError.toSchemaUri} (BQRepeaterBigQueryError)" >>
+      skipped("Until BQ Loader 0.2.0 ")
+  }
+
+  "Generic Loaders" >> {
+    s"${Schemas.LoaderIgluError.toSchemaUri} (LoaderIgluError)" >>
+      forAll(BadRowGen.loaderIgluError) { f => validateBadRow[BadRow.LoaderIgluError](f) must beRight }
+
+    s"${Schemas.LoaderRuntimeError.toSchemaUri} (LoaderRuntimeErrors)" >>
+      forAll(BadRowGen.loaderRuntimeErrorBadRowGen) { f => validateBadRow[BadRow.LoaderRuntimeErrors](f) must beRight }
+  }
+}
 
 object SchemaValidationSpec {
 
-  val resolverConfig = json"""
-      {
-         "schema":"iglu:com.snowplowanalytics.iglu/resolver-config/jsonschema/1-0-0",
-         "data":{
-            "cacheSize":500,
-            "repositories":[
-                {
-                  "name":"Branch snowplow/snowplow bad rows",
-                  "priority":0,
-                  "vendorPrefixes":[
-                    "com.snowplowanalytics"
-                  ],
-                  "connection":{
-                    "http":{
-                      "uri":"https://raw.githubusercontent.com/snowplow/iglu-central/bad-rows/"
-                    }
-                  }
-                },
-                {
-                  "name":"Branch BQ loader bad rows",
-                  "priority":2,
-                  "vendorPrefixes":[
-                    "com.snowplowanalytics"
-                  ],
-                  "connection":{
-                    "http":{
-                      "uri":"https://raw.githubusercontent.com/aldemirenes/iglu-central/bq-loader-bad-rows/"
-                    }
-                  }
-                },
-                {
-                  "name":"TOREMOVE branch all bad rows",
-                  "priority":1,
-                  "vendorPrefixes":[
-                    "com.snowplowanalytics"
-                  ],
-                  "connection":{
-                    "http":{
-                      "uri":"https://raw.githubusercontent.com/aldemirenes/iglu-central/all-bad-rows/"
-                    }
-                  }
-                }
-            ]
-         }
-      }
-    """
-
-  val resolver = Resolver.parse(resolverConfig).fold(e => throw new RuntimeException(e.toString), identity)
-
-  val mockJsonValue = Json.obj("mockJsonKey" := "mockJsonValue")
-
-  val mockProcessor = Processor("artifact", "0.0.1")
-
-  val rawPayloadGen = Gen.alphaNumStr.map { line =>
-    Payload.RawPayload(line)
-  }
-
-  // TODO ENES: generate event instead of giving static one
-  val loaderPayloadGen = Gen.const(Payload.LoaderPayload(SpecHelpers.ExampleEvent))
-
-  val selfDescribingEntityGen = Gen.alphaNumStr.map(Payload.SelfDescribingEntity(_, mockJsonValue))
-
-  val reconstructedEventGen = Gen.listOf(selfDescribingEntityGen).map(Payload.BQReconstructedEvent(SpecHelpers.ExampleEvent, _))
-
-  val parsingErrorBadRowGen = for {
-    payload <- rawPayloadGen
-    failure <- Gen.nonEmptyListOf(Gen.alphaNumStr).map { errors =>
-      Failure.LoaderParsingErrors(NonEmptyList.fromListUnsafe(errors))
-    }
-  } yield BadRow.LoaderParsingErrors(mockProcessor, failure, payload)
-
-
-  val schemaVerGen = for {
-    model <- Gen.chooseNum(1, 9)
-    revision <- Gen.chooseNum(0, 9)
-    addition <- Gen.chooseNum(0, 9)
-  } yield SchemaVer.Full(model, revision, addition)
-
-  val schemaKeyGen = for {
-    vendor <- Gen.identifier
-    name <- Gen.identifier
-    format <- Gen.identifier
-    version <- schemaVerGen
-  } yield SchemaKey(vendor, name, format, version)
-
-  val loaderIgluErrorBadRowGen = for {
-    payload <- loaderPayloadGen
-    failure <- Gen.nonEmptyListOf(
-      schemaKeyGen.map { schemaKey =>
-        FailureDetails.LoaderIgluError(
-          schemaKey,
-          // TODO Enes: Create generator for ClientError
-          ValidationError(InvalidData(NonEmptyList.of(ValidatorReport("message", None, List(), None))))
-        )
-      }
-    ).map(l => Failure.LoaderIgluErrors(NonEmptyList.fromListUnsafe(l)))
-  } yield BadRow.LoaderIgluErrors(mockProcessor, failure, payload)
-
-  val bqFieldTypeGen = Gen.oneOf("Boolean", "Float", "Integer")
-
-  val bqCastErrorsBadRowGen = for {
-    payload <- loaderPayloadGen
-    failure <- Gen.nonEmptyListOf(
-      for {
-        schemaKey <- schemaKeyGen
-        bqCastErrorGen <- Gen.oneOf(
-          bqFieldTypeGen.map(FailureDetails.BQCastErrorInfo.WrongType(mockJsonValue, _)),
-          bqFieldTypeGen.map(FailureDetails.BQCastErrorInfo.NotAnArray(mockJsonValue, _)),
-          Gen.alphaNumStr.map(FailureDetails.BQCastErrorInfo.MissingInValue(_, mockJsonValue))
-        )
-        bqCastErrors <- Gen.nonEmptyListOf(bqCastErrorGen)
-      } yield FailureDetails.BQCastError(mockJsonValue, schemaKey, NonEmptyList.fromListUnsafe(bqCastErrors))
-    ).map(e => Failure.BQCastErrors(NonEmptyList.fromListUnsafe(e)))
-  } yield BadRow.BQCastErrors(mockProcessor, failure, payload)
-
-
-  val loaderRuntimeErrorBadRowGen = for {
-    payload <- loaderPayloadGen
-    failure <- Gen.alphaNumStr.map { e =>
-      Failure.LoaderRuntimeErrors(e)
-    }
-  } yield BadRow.LoaderRuntimeErrors(mockProcessor, failure, payload)
-
-  val bqRepeaterParsingErrorGen = for {
-    payload <- rawPayloadGen
-    failure <- for {
-      message <- Gen.alphaNumStr
-      location <- Gen.nonEmptyListOf(Gen.alphaNumStr)
-    } yield Failure.BQRepeaterParsingError(message, location)
-  } yield BadRow.BQRepeaterParsingError(mockProcessor, failure, payload)
-
-  val bqRepeaterPubSubErrorGen = for {
-    payload <- rawPayloadGen
-    failure <- Gen.alphaNumStr.map(e => Failure.BQRepeaterPubSubError(e))
-  } yield BadRow.BQRepeaterPubSubError(mockProcessor, failure, payload)
-
-  val bqRepeaterBigQueryErrorGen = for {
-    payload <- reconstructedEventGen
-    failure <- for {
-      reason <- Gen.option(Gen.alphaNumStr)
-      location <- Gen.option(Gen.alphaNumStr)
-      message <- Gen.alphaNumStr
-    } yield Failure.BQRepeaterBigQueryError(reason, location, message)
-  } yield BadRow.BQRepeaterBigQueryError(mockProcessor, failure, payload)
-
-  def strGen(n: Int): Gen[String] = Gen.alphaNumStr.map(s => s.substring(0, Math.min(s.length(), n)))
-
-  val inputDataCPFormatViolationMessageGen: Gen[FailureDetails.CPFormatViolationMessage] = for {
-    payloadField <- strGen(64)
-    value <- Gen.option(Gen.alphaNumStr)
-    expectation <- strGen(256)
-  } yield FailureDetails.CPFormatViolationMessage.InputData(payloadField, value, expectation)
-
-  val fallbackCPFormatViolationMessage: Gen[FailureDetails.CPFormatViolationMessage] = strGen(512).map { e =>
-    FailureDetails.CPFormatViolationMessage.Fallback(e)
-  }
-
-  // TODO Enes: Generate properly
-  val instantGen = Gen.const(java.time.Instant.now())
-
-  val cpFormatViolationFailureGen = for {
-    timestamp <- instantGen
-    loader <- Gen.oneOf("clj-tomcat", "cloudfront", "ndjson", "thrift", "tsv")
-    message <- Gen.oneOf(inputDataCPFormatViolationMessageGen, fallbackCPFormatViolationMessage)
-  } yield Failure.CPFormatViolation(timestamp, loader, message)
-
-  val cpFormatViolationBadRowGen = for {
-    payload <- rawPayloadGen
-    failure <- cpFormatViolationFailureGen
-  } yield BadRow.CPFormatViolation(mockProcessor, failure, payload)
-
-  def validateBadRow[F <: BadRow : Decoder : Encoder](badRow: BadRow) = {
-    // reparsing json is added in order to check decoding
+  def validateBadRow[A <: BadRow: Decoder: Encoder](badRow: BadRow) = {
+    // JSON reparsing is added in order to check decoding
     val encoded = parser.parse(badRow.selfDescribinData.data.noSpaces)
       .getOrElse(throw new RuntimeException("Error while parsing bad row json"))
-    val decoded = encoded.as[F].getOrElse(throw new RuntimeException(s"Error while decoding bad row: ${encoded.as[F]}"))
+    val decoded = encoded.as[A].getOrElse(throw new RuntimeException(s"Error while decoding bad row: ${encoded.as[A]}"))
       .asJson
     val schema = resolver.lookupSchema(badRow.schemaKey)
     CirceValidator.validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
   }
-}
 
-class SchemaValidationSpec extends Specification with ScalaCheck { def is = s2"""
-    parsing error $e1
-    loader iglu error $e2
-    bq cast error $e3
-    loader run time error $e4
-    bq repeater parsing error $e5
-    bq repeater pubsub error $e5
-    bq repeater bigquery error $e7
-    cp format violation $e8
-  """
-  import SchemaValidationSpec._
+  // TODO: replace to actual Iglu Central once merged
+  val http = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/release/r110/"), None)
+  val igluCentral = Registry.Http(Registry.Config("Iglu Central R110 PR (temporary)", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
 
-  def e1 = {
-    forAll(parsingErrorBadRowGen) {
-      f => validateBadRow[BadRow.LoaderParsingErrors](f) must beRight
-    }
-  }
+  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
 
-  def e2 = {
-    forAll(loaderIgluErrorBadRowGen) {
-      f => validateBadRow[BadRow.LoaderIgluErrors](f) must beRight
-    }
-  }
+  val mockJsonValue =
+    Json.obj("mockJsonKey" := "mockJsonValue")
 
-  def e3 = {
-    forAll(bqCastErrorsBadRowGen) {
-      f => validateBadRow[BadRow.BQCastErrors](f) must beRight
-    }
-  }
-
-  def e4 = {
-    forAll(loaderRuntimeErrorBadRowGen) {
-      f => validateBadRow[BadRow.LoaderRuntimeErrors](f) must beRight
-    }
-  }
-
-  def e5 = {
-    forAll(bqRepeaterParsingErrorGen) {
-      f => validateBadRow[BadRow.BQRepeaterParsingError](f) must beRight
-    }
-  }
-
-  def e6 = {
-    forAll(bqRepeaterPubSubErrorGen) {
-      f => validateBadRow[BadRow.BQRepeaterPubSubError](f) must beRight
-    }
-  }
-
-  def e7 = {
-    forAll(bqRepeaterBigQueryErrorGen) {
-      f => validateBadRow[BadRow.BQRepeaterBigQueryError](f) must beRight
-    }
-  }
-
-  def e8 = {
-    forAll(cpFormatViolationBadRowGen) {
-      f => validateBadRow[BadRow.CPFormatViolation](f) must beRight
-    }
-  }
+  val mockProcessor =
+    Processor("artifact", "0.0.1")
 }

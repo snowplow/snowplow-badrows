@@ -15,12 +15,14 @@ package com.snowplowanalytics.snowplow.badrows
 
 import java.time.Instant
 
+import cats.data.NonEmptyList
+
 import io.circe.literal._
 import io.circe.syntax._
 
 import org.specs2.Specification
 
-import cats.data.NonEmptyList
+import com.snowplowanalytics.iglu.core.ParseError
 
 class FailureSpec extends Specification {
   import FailureDetails._
@@ -56,7 +58,7 @@ class FailureSpec extends Specification {
       Instant.ofEpochMilli(1000L),
       "com.hubspot",
       "v1",
-      NonEmptyList.one(NotSD("{}", "not sd"))
+      NonEmptyList.one(NotIglu(json"{}", ParseError.InvalidSchemaVer))
     )
     val expected = json"""{
       "timestamp" : "1970-01-01T00:00:01Z",
@@ -64,8 +66,8 @@ class FailureSpec extends Specification {
       "version" : "v1",
       "messages" : [
         {
-          "json" : "{}",
-          "error" : "not sd"
+          "json" : {},
+          "error" : "INVALID_SCHEMAVER"
         }
       ]
     }"""
@@ -76,14 +78,14 @@ class FailureSpec extends Specification {
     import SchemaViolation._
     val f: Failure = Failure.SchemaViolations(
       Instant.ofEpochMilli(1000L),
-      NonEmptyList.one(NotSD("{}", "not sd"))
+      NonEmptyList.one(NotIglu(json"{}", ParseError.InvalidData))
     )
     val expected = json"""{
       "timestamp" : "1970-01-01T00:00:01Z",
       "messages" : [
         {
-          "json" : "{}",
-          "error" : "not sd"
+          "json" : {},
+          "error" : "INVALID_DATA_PAYLOAD"
         }
       ]
     }"""

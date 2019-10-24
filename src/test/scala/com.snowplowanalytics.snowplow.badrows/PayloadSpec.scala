@@ -219,7 +219,7 @@ class PayloadSpec extends Specification {
       )
     )
     val expected = json"""{
-      "partiallyEnrichedEvent": {
+      "enriched": {
         "app_id" : null,
         "platform" : null,
         "etl_tstamp" : null,
@@ -351,7 +351,7 @@ class PayloadSpec extends Specification {
         "event_version" : null,
         "event_fingerprint" : null,
         "true_tstamp" : null
-      }, "rawEvent": {
+      }, "raw": {
         "vendor": "vendor",
         "version": "version",
         "parameters": {},

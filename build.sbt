@@ -11,57 +11,18 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-lazy val circeVersion = "0.11.1"
-lazy val igluClientVersion = "0.6.1-M1"
-lazy val analyticsSdk = "1.0.0-M2"
-lazy val specs2Version = "4.7.0"
-lazy val scalaCheck = "1.14.0"
-
-resolvers += "Snowplow Bintray" at "https://snowplow.bintray.com/snowplow-maven"
-
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
-    version := "0.1.0-M5",
+    version := "0.1.0-M6",
     organization := "com.snowplowanalytics",
-    scalaVersion := "2.12.8"
+    scalaVersion := "2.12.10",
+    scalacOptions := BuildSettings.scalacOptions,
+    cancelable in Global := true,
+    scalacOptions in (Compile, console) --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
   )
-  .settings(publishSettings)
   .settings(
-    libraryDependencies ++= (Seq(
-      "io.circe" %% "circe-generic",
-      "io.circe" %% "circe-java8",
-      "io.circe" %% "circe-jawn",
-      "io.circe" %% "circe-literal"
-    ).map(_ % circeVersion) match {
-      case h1 :: h2 :: t => h1 :: h2 :: t.map(_ % Test)
-    }) ++ Seq(
-      "com.snowplowanalytics" %% "iglu-scala-client" % igluClientVersion,
-      "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % analyticsSdk,
-      "org.specs2" %% "specs2-core" % specs2Version % Test,
-      "org.specs2" %% "specs2-scalacheck" % specs2Version % Test,
-      "org.scalacheck" %% "scalacheck" % scalaCheck % Test
-    )
+    libraryDependencies := Dependencies.All,
+    resolvers += Dependencies.SnowplowBintray
   )
-
-lazy val publishSettings = Seq(
-  publishMavenStyle := true,
-  publishArtifact := true,
-  publishArtifact in Test := false,
-  licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-  bintrayOrganization := Some("snowplow"),
-  bintrayRepository := "snowplow-maven",
-  pomIncludeRepository := { _ => false },
-  homepage := Some(url("http://snowplowanalytics.com")),
-  scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/snowplow-badrows"),
-    "scm:git@github.com:snowplow-incubator/snowplow-badrows.git")),
-  pomExtra := (
-    <developers>
-      <developer>
-        <name>Snowplow Analytics Ltd</name>
-        <email>support@snowplowanalytics.com</email>
-        <organization>Snowplow Analytics Ltd</organization>
-        <organizationUrl>http://snowplowanalytics.com</organizationUrl>
-      </developer>
-    </developers>)
-)
+  .settings(BuildSettings.publishSettings)
