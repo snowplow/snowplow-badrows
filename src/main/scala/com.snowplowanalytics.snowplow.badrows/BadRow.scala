@@ -25,7 +25,7 @@ import com.snowplowanalytics.iglu.core.circe.instances._
 
 sealed trait BadRow {
   def schemaKey: SchemaKey
-  def selfDescribinData: SelfDescribingData[Json] = SelfDescribingData(schemaKey, this.asJson)
+  def selfDescribingData: SelfDescribingData[Json] = SelfDescribingData(schemaKey, this.asJson)
   def compact: String = selfDescribinData.asJson.noSpaces
 }
 
