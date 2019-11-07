@@ -14,7 +14,7 @@
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
-    version := "0.1.0-M6",
+    version := "0.1.0-M7",
     organization := "com.snowplowanalytics",
     scalaVersion := "2.12.10",
     scalacOptions := BuildSettings.scalacOptions,
