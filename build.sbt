@@ -16,7 +16,7 @@ import BuildSettings.{ scalacOptions => opts, scalacOptions212 }
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
-    version := "0.1.0",
+    version := "0.1.0-M8",
     organization := "com.snowplowanalytics",
     scalaVersion := "2.12.10",
     crossScalaVersions := Seq("2.11.12", "2.12.10"),
