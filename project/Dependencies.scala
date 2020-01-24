@@ -19,7 +19,7 @@ object Dependencies {
 
   object V {
     val circe        = "0.11.1"
-    val igluClient   = "0.6.1"
+    val igluClient   = "0.6.3"
     val jodaTime     = "2.10.1"
     val analyticsSdk = "1.0.0"
     val specs2       = "4.8.0"

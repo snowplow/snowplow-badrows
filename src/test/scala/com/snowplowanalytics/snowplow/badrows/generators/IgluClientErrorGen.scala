@@ -13,13 +13,13 @@
 package com.snowplowanalytics.snowplow.badrows.generators
 
 import cats.data.NonEmptyList
-
 import com.snowplowanalytics.iglu.client.ClientError
 import com.snowplowanalytics.iglu.client.resolver.LookupHistory
 import com.snowplowanalytics.iglu.client.resolver.registries.RegistryError
 import com.snowplowanalytics.iglu.client.validator.{ValidatorError, ValidatorReport}
-
 import org.scalacheck.Gen
+
+import scala.collection.immutable.SortedMap
 
 object IgluClientErrorGen {
 
@@ -46,7 +46,7 @@ object IgluClientErrorGen {
       .identifier
       .flatMap { k => lookupHistory.flatMap { v => (k, v) } }
       .flatMap { kv => Gen.nonEmptyMap(kv) }
-      .map { map => ClientError.ResolutionError(map) }
+      .map { map => ClientError.ResolutionError(SortedMap[String, LookupHistory]() ++ map) }
 
   val validatorReport: Gen[ValidatorReport] =
     for {
