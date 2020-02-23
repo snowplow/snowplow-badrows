@@ -12,7 +12,7 @@
  */
 package com.snowplowanalytics.snowplow.badrows.generators
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Gen
 
 import com.snowplowanalytics.snowplow.badrows.FailureDetails
 
@@ -61,7 +61,7 @@ object FailureDetailsGen {
   private val adapterFailureNotJson: Gen[FailureDetails.AdapterFailure.NotJson] =
     for {
       field <- CommonGen.strGen(64, Gen.alphaNumChar)
-      value <- Gen.some(Arbitrary.arbitrary[String])
+      value <- Gen.some(CommonGen.messageGen(128))
       error <- Gen.asciiPrintableStr
     } yield FailureDetails.AdapterFailure.NotJson(field, value, error)
 
@@ -74,13 +74,13 @@ object FailureDetailsGen {
   private val adapterFailureInputData: Gen[FailureDetails.AdapterFailure.InputData] =
     for {
       field       <- CommonGen.strGen(64, Gen.alphaNumChar)
-      value       <- Gen.some(Arbitrary.arbitrary[String])
+      value       <- Gen.some(CommonGen.messageGen(128))
       expectation <- CommonGen.strGen(256, Gen.asciiPrintableChar)
     } yield FailureDetails.AdapterFailure.InputData(field, value, expectation)
 
   private val adapterFailureSchemaMapping: Gen[FailureDetails.AdapterFailure.SchemaMapping] =
     for {
-      actual          <- Gen.option(CommonGen.strGen(256, Arbitrary.arbitrary[Char]))
+      actual          <- Gen.option(CommonGen.strGen(256, CommonGen.messageCharGen))
       expectedMapping <- Gen.mapOf(Gen.identifier.flatMap { i => CommonGen.schemaKey.flatMap { key => (i, key) } })
       expectation     <- CommonGen.strGen(256, Gen.asciiPrintableChar)
     } yield FailureDetails.AdapterFailure.SchemaMapping(actual, expectedMapping, expectation)
@@ -90,14 +90,14 @@ object FailureDetailsGen {
   private val trackerProtocolViolationInputData: Gen[FailureDetails.TrackerProtocolViolation.InputData] =
     for {
       field       <- CommonGen.strGen(64, Gen.alphaNumChar)
-      value       <- Gen.some(Arbitrary.arbitrary[String])
+      value       <- Gen.some(CommonGen.messageGen(100))
       expectation <- CommonGen.strGen(256, Gen.asciiPrintableChar)
     } yield FailureDetails.TrackerProtocolViolation.InputData(field, value, expectation)
 
   private val trackerProtocolViolationNotJson: Gen[FailureDetails.TrackerProtocolViolation.NotJson] =
     for {
       field <- CommonGen.strGen(64, Gen.asciiPrintableChar)
-      value <- Gen.option(Arbitrary.arbitrary[String])
+      value <- Gen.option(CommonGen.messageGen(256))
       error <- Gen.asciiPrintableStr
     } yield FailureDetails.TrackerProtocolViolation.NotJson(field, value, error)
 
@@ -130,7 +130,7 @@ object FailureDetailsGen {
   private val schemalViolationNotJson: Gen[FailureDetails.SchemaViolation.NotJson] =
     for {
       field <- CommonGen.strGen(64, Gen.asciiPrintableChar)
-      value <- Gen.option(Arbitrary.arbitrary[String])
+      value <- Gen.option(CommonGen.messageGen(128))
       error <- Gen.asciiPrintableStr
     } yield FailureDetails.SchemaViolation.NotJson(field, value, error)
 
@@ -154,7 +154,7 @@ object FailureDetailsGen {
   private val enrichmentFailureMessageInputData: Gen[FailureDetails.EnrichmentFailureMessage.InputData] =
     for {
       field       <- CommonGen.strGen(64, Gen.asciiPrintableChar)
-      value       <- Gen.option(Arbitrary.arbitrary[String])
+      value       <- Gen.option(CommonGen.messageGen(128))
       expectation <- CommonGen.strGen(256, Gen.asciiPrintableChar)
     } yield FailureDetails.EnrichmentFailureMessage.InputData(field, value, expectation)
 

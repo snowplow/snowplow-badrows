@@ -33,6 +33,8 @@ object Dependencies {
     "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % V.analyticsSdk,
     "joda-time"             %  "joda-time"                    % V.jodaTime,
 
+    "io.chrisdavenport"     %% "cats-scalacheck"              % "0.1.1"      % Test,
+
     "io.circe"              %% "circe-jawn"                   % V.circe      % Test,
     "io.circe"              %% "circe-literal"                % V.circe      % Test,
     "org.specs2"            %% "specs2-core"                  % V.specs2     % Test,

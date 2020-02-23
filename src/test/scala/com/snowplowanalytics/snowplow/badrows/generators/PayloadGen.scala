@@ -19,11 +19,15 @@ object PayloadGen {
   val rawPayload: Gen[Payload.RawPayload] =
     Gen.alphaNumStr.map { line => Payload.RawPayload(line) }
 
+  val parametersGen =
+    Gen.listOf(CommonGen.messageGen(28).flatMap(k => CommonGen.messageGen(200).map(v => (k, v))))
+      .map(_.toMap)
+
   val rawEvent: Gen[Payload.RawEvent] =
     for {
       vendor      <- CommonGen.strGen(64, Gen.alphaLowerChar)
       version     <- CommonGen.strGen(16, Gen.alphaNumChar)
-      querystring <- Arbitrary.arbitrary[Map[String, String]]
+      querystring <- parametersGen
       contentType <- Gen.option(Gen.oneOf("text/plain", "application/json"))
       loaderName  <- CommonGen.strGen(32, Gen.alphaNumChar)
       encoding    <- CommonGen.strGen(32, Gen.alphaNumChar)
@@ -55,7 +59,7 @@ object PayloadGen {
       vendor      <- CommonGen.strGen(64, Gen.alphaLowerChar)
       version     <- CommonGen.strGen(16, Gen.alphaNumChar)
       querystring <- CommonGen.listOfMaxN(100, nvp)
-      body        <- Gen.option(Arbitrary.arbitrary[String])
+      body        <- Gen.option(CommonGen.messageGen(3000))
       contentType <- Gen.option(Gen.oneOf("text/plain", "application/json", "application/json; encoding=utf-8" ))
       collector   <- CommonGen.strGen(32, Gen.alphaNumChar)
       encoding    <- CommonGen.strGen(32, Gen.alphaNumChar)

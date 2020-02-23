@@ -118,6 +118,18 @@ object CommonGen {
   def nonEmptyListOfMaxN[T](n: Int, g: Gen[T]) =
     Gen.chooseNum(1, n).flatMap(nn => Gen.listOfN(nn, g))
 
+  val messageCharGen: Gen[Char] = {
+    val acsiiChars = Range('a', 'z').toList.map(_.toChar)
+    val cyrillicChars = Range('а', 'я').toList.map(_.toChar)
+    val numbers = Range('0', '9').toList.map(_.toChar)
+    val symbols = List('!','_', ':', '"', ';', '^', ' ', ' ', '\n', '\t')
+    val all = acsiiChars ++ acsiiChars.map(_.toUpper) ++ cyrillicChars ++ numbers ++ symbols
+    Gen.oneOf(all)
+  }
+
+  def messageGen(n: Int) =
+    nonEmptyListOfMaxN(n, messageCharGen).map(s => new String(s.toArray))
+
   val parsingError: Gen[ParsingError] =
     Gen.oneOf(
       Gen.const(ParsingError.NotTSV),

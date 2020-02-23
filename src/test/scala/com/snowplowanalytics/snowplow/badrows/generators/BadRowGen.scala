@@ -12,10 +12,14 @@
  */
 package com.snowplowanalytics.snowplow.badrows.generators
 
+import java.nio.file.{ StandardOpenOption, Paths, Path, Files }
+
+import cats.implicits._
+
+import org.scalacheck.cats.implicits._
+
 import cats.data.NonEmptyList
-
 import org.scalacheck.Gen
-
 import com.snowplowanalytics.snowplow.badrows.{BadRow, Failure}
 
 object BadRowGen {
@@ -89,4 +93,38 @@ object BadRowGen {
       failure <- FailureDetailsGen.loaderRecoveryError.map(e => Failure.LoaderRecoveryFailure(e))
       processor <- CommonGen.processor
     } yield BadRow.LoaderRecoveryError(processor, failure, payload)
+
+
+  def create(path: Option[Path]) = {
+    val outputPath = path.getOrElse(Paths.get(sys.env("HOME"), "badrows.json"))
+    def write(data: Vector[BadRow]): Unit =
+      data.foreach { row =>
+        Files.write(outputPath, (row.compact ++ "\r\n").getBytes, StandardOpenOption.APPEND)
+      }
+
+    val gen = for {
+      sizeViolations                <- Vector.fill(20)(sizeViolation).sequence
+      _ = write(sizeViolations)
+      cpFormatViolations            <- Vector.fill(50)(cpFormatViolation).sequence
+      _ = write(cpFormatViolations)
+      adapterFailuress              <- Vector.fill(20)(adapterFailures).sequence
+      _ = write(adapterFailuress)
+      trackerProtocolViolationss    <- Vector.fill(50)(trackerProtocolViolations).sequence
+      _ = write(trackerProtocolViolationss)
+      schemaViolationss             <- Vector.fill(200)(schemaViolations).sequence
+      _ = write(schemaViolationss)
+      enrichmentFailuress           <- Vector.fill(100)(enrichmentFailures).sequence
+      _ = write(enrichmentFailuress)
+      loaderParsingErrors           <- Vector.fill(20)(loaderParsingError).sequence
+      _ = write(loaderParsingErrors)
+      loaderIgluErrors              <- Vector.fill(20)(loaderIgluError).sequence
+      _ = write(loaderIgluErrors)
+      loaderRuntimeErrorErrors      <- Vector.fill(50)(loaderRuntimeErrorBadRowGen).sequence
+      _ = write(loaderRuntimeErrorErrors)
+      loaderRecoveryErrorBadRowGens <- Vector.fill(20)(loaderRecoveryErrorBadRowGen).sequence
+      _ = write(loaderRecoveryErrorBadRowGens)
+    } yield ()
+
+    gen.sample.get
+  }
 }

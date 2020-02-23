@@ -50,18 +50,18 @@ object FailureGen {
       timestamp <- CommonGen.instantGen
       vendor    <- CommonGen.strGen(64, Gen.alphaNumChar)
       version   <- CommonGen.strGen(16, Gen.alphaNumChar)
-      messages  <- Gen.nonEmptyListOf(FailureDetailsGen.trackerProtocolViolation).map(NonEmptyList.fromListUnsafe)
+      messages  <- CommonGen.nonEmptyListOfMaxN(6, FailureDetailsGen.trackerProtocolViolation).map(NonEmptyList.fromListUnsafe)
     } yield Failure.TrackerProtocolViolations(timestamp, vendor, version, messages)
 
   val schemaViolations: Gen[Failure.SchemaViolations] =
     for {
       timestamp <- CommonGen.instantGen
-      messages <- Gen.nonEmptyListOf(FailureDetailsGen.schemaViolation).map(NonEmptyList.fromListUnsafe)
+      messages <- CommonGen.nonEmptyListOfMaxN(4, FailureDetailsGen.schemaViolation).map(NonEmptyList.fromListUnsafe)
     } yield Failure.SchemaViolations(timestamp, messages)
 
   val enrichmentFailure: Gen[Failure.EnrichmentFailures] =
     for {
       timestamp <- CommonGen.instantGen
-      messages  <- Gen.nonEmptyListOf(FailureDetailsGen.enrichmentFailure).map(NonEmptyList.fromListUnsafe)
+      messages  <- CommonGen.nonEmptyListOfMaxN(4, FailureDetailsGen.enrichmentFailure).map(NonEmptyList.fromListUnsafe)
     } yield Failure.EnrichmentFailures(timestamp, messages)
 }
