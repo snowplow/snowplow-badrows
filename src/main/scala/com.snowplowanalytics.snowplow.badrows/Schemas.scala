@@ -44,4 +44,7 @@ object Schemas {
 
   /** @see [[BadRow.LoaderRecoveryError]] */
   val LoaderRecoveryError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_recovery_error", "jsonschema", SchemaVer.Full(1, 0, 0))
+
+  /** @see [[BadRow.RecoveryError]] */
+  val RecoveryError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "recovery_error", "jsonschema", SchemaVer.Full(1, 0, 0))
 }
