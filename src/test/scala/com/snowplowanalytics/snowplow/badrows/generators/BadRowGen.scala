@@ -89,4 +89,13 @@ object BadRowGen {
       failure <- FailureDetailsGen.loaderRecoveryError.map(e => Failure.LoaderRecoveryFailure(e))
       processor <- CommonGen.processor
     } yield BadRow.LoaderRecoveryError(processor, failure, payload)
+
+  val recoveryErrorBadRowGen: Gen[BadRow.RecoveryError] =
+    for {
+      failure <- FailureGen.recoveryFailure
+      processor <- CommonGen.processor
+      recoveries <- Gen.posNum[Int]
+      payload <- Gen.oneOf(adapterFailures, cpFormatViolation, enrichmentFailures, loaderIgluError, loaderParsingError, loaderRuntimeErrorBadRowGen, loaderRecoveryErrorBadRowGen, schemaViolations, sizeViolation, trackerProtocolViolations)
+    } yield BadRow.RecoveryError(processor, failure, payload, recoveries)
+
 }
