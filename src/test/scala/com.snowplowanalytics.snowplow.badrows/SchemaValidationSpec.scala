@@ -69,6 +69,12 @@ class SchemaValidationSpec extends Specification with ScalaCheck {
     s"${Schemas.LoaderRecoveryError.toSchemaUri} (LoaderRecoveryError)" >>
       forAll(BadRowGen.loaderRecoveryErrorBadRowGen) { f => validateBadRow[BadRow.LoaderRecoveryError](f) must beRight }
   }
+
+  "Recovery" >> {
+    s"${Schemas.RecoveryError.toSchemaUri} (RecoveryError)" >>
+      forAll(BadRowGen.recoveryErrorBadRowGen) { f =>
+        validateBadRow[BadRow.RecoveryError](f) must beRight }
+  }
 }
 
 object SchemaValidationSpec {
@@ -86,7 +92,10 @@ object SchemaValidationSpec {
   val http = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/badrows_querystring/"), None)
   val igluCentral = Registry.Http(Registry.Config("Iglu Central PR query string)", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
 
-  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
+  val recoveryHttp = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/feature/recovery-2/"), None)
+  val igluCentralRecovery = Registry.Http(Registry.Config("Iglu Central PR recovery", 0, List("com.snowplowanalytics.snowplow.badrows", "com.snowplowanalytics.snowplow")), recoveryHttp)
+
+  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentralRecovery, igluCentral)
 
   val mockJsonValue =
     Json.obj("mockJsonKey" := "mockJsonValue")
