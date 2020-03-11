@@ -64,4 +64,10 @@ object FailureGen {
       timestamp <- CommonGen.instantGen
       messages  <- Gen.nonEmptyListOf(FailureDetailsGen.enrichmentFailure).map(NonEmptyList.fromListUnsafe)
     } yield Failure.EnrichmentFailures(timestamp, messages)
+
+  val recoveryFailure: Gen[Failure.RecoveryFailure] =
+    for {
+      message <- Gen.alphaNumStr
+      configName <- Gen.option(Gen.alphaNumStr)
+    } yield Failure.RecoveryFailure(message, configName)
 }

@@ -38,6 +38,7 @@ object Failure {
     case f: LoaderParsingErrors => LoaderParsingErrors.failureLoaderParsingErrorsJsonEncoder.apply(f)
     case f: LoaderIgluErrors => LoaderIgluErrors.failureLoaderIgluErrorsJsonEncoder.apply(f)
     case f: LoaderRecoveryFailure => LoaderRecoveryFailure.failureLoaderRecoveryJsonEncoder.apply(f)
+    case f: RecoveryFailure => RecoveryFailure.failureRecoveryJsonEncoder.apply(f)
   }
   implicit val failureDecoder: Decoder[Failure] = List[Decoder[Failure]](
     CPFormatViolation.failureCPFormatViolationJsonDecoder.widen,
@@ -48,7 +49,8 @@ object Failure {
     SizeViolation.failureSizeViolationJsonDecoder.widen,
     LoaderParsingErrors.failureLoaderParsingErrorsJsonDecoder.widen,
     LoaderIgluErrors.failureLoaderIgluErrorsJsonDecoder.widen,
-    LoaderRecoveryFailure.failureLoaderRecoveryJsonDecoder.widen
+    LoaderRecoveryFailure.failureLoaderRecoveryJsonDecoder.widen,
+    RecoveryFailure.failureRecoveryJsonDecoder.widen
   ).reduceLeft(_ or _)
 
   final case class CPFormatViolation(
@@ -155,5 +157,18 @@ object Failure {
       deriveEncoder[LoaderRecoveryFailure]
     implicit val failureLoaderRecoveryJsonDecoder: Decoder[LoaderRecoveryFailure] =
       deriveDecoder[LoaderRecoveryFailure]
+  }
+
+  /**
+    * A recovery scenario applied in recovery process was unsuccessful.
+    * @param error cause of failure
+    * @param configName name of recovery flow configuration
+    */
+  final case class RecoveryFailure(error: String, configName: Option[String] = None) extends Failure
+  object RecoveryFailure {
+    implicit val failureRecoveryJsonEncoder: Encoder[RecoveryFailure] =
+      deriveEncoder[RecoveryFailure]
+    implicit val failureRecoveryJsonDecoder: Decoder[RecoveryFailure] =
+      deriveDecoder[RecoveryFailure]
   }
 }

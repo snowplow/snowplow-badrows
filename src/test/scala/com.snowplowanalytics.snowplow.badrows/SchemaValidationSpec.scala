@@ -15,11 +15,11 @@ package com.snowplowanalytics.snowplow.badrows
 import java.net.URI
 
 import cats.Id
+import cats.syntax.either._
 
 import io.circe.literal._
 import io.circe.syntax._
 import io.circe.{Json, parser, Decoder, Encoder}
-
 import org.scalacheck.Prop.forAll
 
 import org.specs2.ScalaCheck
@@ -68,6 +68,12 @@ class SchemaValidationSpec extends Specification with ScalaCheck {
 
     s"${Schemas.LoaderRecoveryError.toSchemaUri} (LoaderRecoveryError)" >>
       forAll(BadRowGen.loaderRecoveryErrorBadRowGen) { f => validateBadRow[BadRow.LoaderRecoveryError](f) must beRight }
+  }
+
+  "Recovery" >> {
+    s"${Schemas.RecoveryError.toSchemaUri} (RecoveryError)" >>
+      forAll(BadRowGen.recoveryErrorBadRowGen) { f =>
+        validateBadRow[BadRow.RecoveryError](f) must beRight }
   }
 }
 
