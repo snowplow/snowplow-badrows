@@ -47,6 +47,8 @@ object BadRow {
     case f: LoaderIgluError => LoaderIgluError.badRowLoaderIgluErrorsJsonEncoder.apply(f)
     case f: LoaderRuntimeError => LoaderRuntimeError.badRowLoaderRuntimeErrorsJsonEncoder.apply(f)
     case f: LoaderRecoveryError => LoaderRecoveryError.badRowLoaderRecoveryErrorJsonEncoder.apply(f)
+    // Recovery
+    case f: RecoveryError => RecoveryError.badRowRecoveryErrorJsonEncoder.apply(f)
   }
 
   implicit val badRowDecoder: Decoder[BadRow] = List[Decoder[BadRow]](
@@ -62,7 +64,9 @@ object BadRow {
     LoaderRuntimeError.badRowLoaderRuntimeErrorsJsonDecoder.widen,
     LoaderParsingError.badRowLoaderParsingErrorsJsonDecoder.widen,
     LoaderIgluError.badRowLoaderIgluErrorsJsonDecoder.widen,
-    LoaderRecoveryError.badRowLoaderRecoveryErrorJsonDecoder.widen
+    LoaderRecoveryError.badRowLoaderRecoveryErrorJsonDecoder.widen,
+    // Recovery
+    RecoveryError.badRowRecoveryErrorJsonDecoder.widen
   ).reduceLeft(_ or _)
 
   /** Created by the collector or by the enrich job when the size of the message to send
@@ -196,5 +200,17 @@ object BadRow {
       deriveEncoder[LoaderRecoveryError]
     implicit val badRowLoaderRecoveryErrorJsonDecoder: Decoder[LoaderRecoveryError] =
       deriveDecoder[LoaderRecoveryError]
+  }
+
+  /**
+    * Bad row recovery process couldn't apply recovery steps to given bad row.
+    * @param recoveries number of times recovery has been performed on attached payload
+    */
+  final case class RecoveryError(processor: Processor, failure: Failure.RecoveryFailure, payload: BadRow, recoveries: Int) extends BadRow {
+    def schemaKey: SchemaKey = Schemas.RecoveryError
+  }
+  object RecoveryError {
+    implicit val badRowRecoveryErrorJsonEncoder: Encoder[RecoveryError] = deriveEncoder[RecoveryError]
+    implicit val badRowRecoveryErrorJsonDecoder: Decoder[RecoveryError] = deriveDecoder[RecoveryError]
   }
 }
