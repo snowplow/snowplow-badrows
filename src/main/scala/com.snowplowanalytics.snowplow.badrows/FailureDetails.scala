@@ -102,9 +102,7 @@ object FailureDetails {
   
   // SCHEMA VIOLATIONS
   
-  sealed trait EnrichmentStageIssue
-  
-  sealed trait SchemaViolation extends EnrichmentStageIssue
+  sealed trait SchemaViolation
   object SchemaViolation {
     implicit val schemaViolationEncoder: Encoder[SchemaViolation] = Encoder.instance {
       case f: NotJson => deriveEncoder[NotJson].apply(f)
@@ -127,7 +125,7 @@ object FailureDetails {
   
   // ENRICHMENT FAILURES
 
-  final case class EnrichmentFailure(enrichment: Option[EnrichmentInformation], message: EnrichmentFailureMessage) extends EnrichmentStageIssue
+  final case class EnrichmentFailure(enrichment: Option[EnrichmentInformation], message: EnrichmentFailureMessage)
   object EnrichmentFailure {
     implicit val enrichmentFailureEncoder: Encoder[EnrichmentFailure] = deriveEncoder[EnrichmentFailure]
     implicit val enrichmentFailureDecoder: Decoder[EnrichmentFailure] = deriveDecoder[EnrichmentFailure]
