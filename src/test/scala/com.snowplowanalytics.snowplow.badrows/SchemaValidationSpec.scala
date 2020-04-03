@@ -89,10 +89,13 @@ object SchemaValidationSpec {
     CirceValidator.validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
   }
 
-  val http = Registry.HttpConnection(URI.create("https://iglucentral.com/"), None)
-  val igluCentral = Registry.Http(Registry.Config("Iglu Central)", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
+  val http = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/badrows_querystring/"), None)
+  val igluCentral = Registry.Http(Registry.Config("Iglu Central PR query string)", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
 
-  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
+  val recoveryHttp = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/feature/recovery-2/"), None)
+  val igluCentralRecovery = Registry.Http(Registry.Config("Iglu Central PR recovery", 0, List("com.snowplowanalytics.snowplow.badrows", "com.snowplowanalytics.snowplow")), recoveryHttp)
+
+  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentralRecovery, igluCentral)
 
   val mockJsonValue =
     Json.obj("mockJsonKey" := "mockJsonValue")
