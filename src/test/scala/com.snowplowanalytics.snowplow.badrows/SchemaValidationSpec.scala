@@ -83,9 +83,8 @@ object SchemaValidationSpec {
     CirceValidator.validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
   }
 
-  // TODO: replace to actual Iglu Central once merged
-  val http = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/release/r110/"), None)
-  val igluCentral = Registry.Http(Registry.Config("Iglu Central R110 PR (temporary)", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
+  val http = Registry.HttpConnection(URI.create("http://iglucentral.com/"), None)
+  val igluCentral = Registry.Http(Registry.Config("Iglu Central", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
 
   val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
 
