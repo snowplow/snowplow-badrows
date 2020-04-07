@@ -19,11 +19,17 @@ object PayloadGen {
   val rawPayload: Gen[Payload.RawPayload] =
     Gen.alphaNumStr.map { line => Payload.RawPayload(line) }
 
+  private val nvp: Gen[NVP] =
+    for {
+      name <- CommonGen.strGen(512, Gen.alphaNumChar)
+      value <- Gen.option(CommonGen.strGen(512, Gen.alphaNumChar))
+    } yield NVP(name, value)
+
   val rawEvent: Gen[Payload.RawEvent] =
     for {
       vendor      <- CommonGen.strGen(64, Gen.alphaLowerChar)
       version     <- CommonGen.strGen(16, Gen.alphaNumChar)
-      querystring <- Arbitrary.arbitrary[Map[String, String]]
+      querystring <- CommonGen.listOfMaxN(100, nvp)
       contentType <- Gen.option(Gen.oneOf("text/plain", "application/json"))
       loaderName  <- CommonGen.strGen(32, Gen.alphaNumChar)
       encoding    <- CommonGen.strGen(32, Gen.alphaNumChar)
@@ -34,12 +40,6 @@ object PayloadGen {
       headers     <- CommonGen.listOfMaxN(12, Gen.identifier)
       userId      <- Gen.option(Gen.uuid)
     } yield Payload.RawEvent(vendor, version, querystring, contentType, loaderName, encoding, hostname, timestamp, ipAddress, optStr, optStr, headers, userId)
-
-  private val nvp: Gen[NVP] =
-    for {
-      name <- CommonGen.strGen(512, Gen.alphaNumChar)
-      value <- Gen.option(CommonGen.strGen(512, Gen.alphaNumChar))
-    } yield NVP(name, value)
 
   val partiallyEnrichedEvent: Gen[Payload.PartiallyEnrichedEvent] =
     Gen.const(Payload.PartiallyEnrichedEvent(None,None,None,"2019-10-22",None,None,None,None,None,None,"0.10.0","0.2.0",None,None,

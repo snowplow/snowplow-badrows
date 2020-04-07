@@ -28,10 +28,10 @@ object Schemas {
   val TrackerProtocolViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "tracker_protocol_violations", "jsonschema", SchemaVer.Full(1, 0, 0))
 
   /** @see [[BadRow.SchemaViolations]] */
-  val SchemaViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "schema_violations", "jsonschema", SchemaVer.Full(1, 0, 0))
+  val SchemaViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "schema_violations", "jsonschema", SchemaVer.Full(2, 0, 0))
 
   /** @see [[BadRow.EnrichmentFailures]] */
-  val EnrichmentFailures = SchemaKey("com.snowplowanalytics.snowplow.badrows", "enrichment_failures", "jsonschema", SchemaVer.Full(1, 0, 0))
+  val EnrichmentFailures = SchemaKey("com.snowplowanalytics.snowplow.badrows", "enrichment_failures", "jsonschema", SchemaVer.Full(2, 0, 0))
 
   /** @see [[BadRow.LoaderParsingError]] */
   val LoaderParsingError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_parsing_error", "jsonschema", SchemaVer.Full(2, 0, 0))
