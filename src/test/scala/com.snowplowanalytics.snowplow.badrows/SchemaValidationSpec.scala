@@ -34,12 +34,12 @@ import generators.BadRowGen
 class SchemaValidationSpec extends Specification with ScalaCheck {
   import SchemaValidationSpec._
 
-  "Stream Collector" >> {
+  "Collector / Enrich" >> {
     s"${Schemas.SizeViolation.toSchemaUri} (SizeViolation)" >>
       forAll(BadRowGen.sizeViolation) { f => validateBadRow[BadRow.SizeViolation](f) must beRight }
   }
 
-  "Scala Common Enrich 1.0.0" >> {
+  "Enrich" >> {
     s"${Schemas.CPFormatViolation.toSchemaUri} (CPFormatViolation)" >>
        forAll(BadRowGen.cpFormatViolation) { f => validateBadRow[BadRow.CPFormatViolation](f) must beRight }
 

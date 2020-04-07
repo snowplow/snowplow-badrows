@@ -14,16 +14,25 @@
 package com.snowplowanalytics.snowplow.badrows
 
 import cats.syntax.option._
+
 import io.circe.literal._
 import io.circe.syntax._
-import org.specs2.Specification
+import io.circe.parser.decode
 
-class PayloadSpec extends Specification {
+import org.specs2.Specification
+import org.specs2.ScalaCheck
+
+import org.scalacheck.Prop.forAll
+
+import org.scalacheck.{Arbitrary, Gen}
+
+class PayloadSpec extends Specification with ScalaCheck {
   import Payload._
   def is = s2"""
   encode RawPayload $e1
   encode CollectorPayload $e2
-  encode PartiallyEnrichedEvent $e3
+  encode EnrichmentPayload $e3
+  decode EnrichmentPayload with $$.payload.raw.parameters as object (1-0-0) $e4
   """
 
   def e1 = {
@@ -205,7 +214,11 @@ class PayloadSpec extends Specification {
       ), RawEvent(
         "vendor",
         "version",
-        Map.empty,
+        List(
+          NVP("field1", Some("value1")),
+          NVP("field1", Some("value2")),
+          NVP("field2", None)
+        ),
         None,
         "tsv",
         "UTF-8",
@@ -354,7 +367,20 @@ class PayloadSpec extends Specification {
       }, "raw": {
         "vendor": "vendor",
         "version": "version",
-        "parameters": {},
+         "parameters" : [
+          {
+            "name" : "field1",
+            "value" : "value1"
+          },
+          {
+            "name" : "field1",
+            "value" : "value2"
+          },
+          {
+            "name" : "field2",
+            "value" : null
+          }
+        ],
         "contentType": null,
         "loaderName": "tsv",
         "encoding": "UTF-8",
@@ -368,5 +394,29 @@ class PayloadSpec extends Specification {
       }
     }"""
     p.asJson must beEqualTo(expected)
+  }
+
+  def e4 = {
+    val rawEventJsonGen: Gen[String] =
+      for {
+        queryString <- Arbitrary.arbitrary[Map[String, String]]
+      } yield s"""
+      {
+        "vendor": "vendor",
+        "version": "version",
+        "parameters" : ${queryString.asJson},
+        "contentType": null,
+        "loaderName": "tsv",
+        "encoding": "UTF-8",
+        "hostname": null,
+        "timestamp": null,
+        "ipAddress": null,
+        "useragent": null,
+        "refererUri": null,
+        "headers": [],
+        "userId": null
+      }
+      """
+    forAll(rawEventJsonGen) { s => decode[RawEvent](s) must beRight }
   }
 }
