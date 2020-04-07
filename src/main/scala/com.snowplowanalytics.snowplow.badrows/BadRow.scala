@@ -34,15 +34,15 @@ sealed trait BadRow {
 
 object BadRow {
   implicit val badRowEncoder: Encoder[BadRow] = Encoder.instance {
-    // Stream Collector
+    // Collector / Enrich
     case f: SizeViolation => SizeViolation.badRowSizeViolationJsonEncoder.apply(f)
-    // Scala Common Enrich
+    // Enrich
     case f: CPFormatViolation => CPFormatViolation.badRowCPFormatViolationJsonEncoder.apply(f)
     case f: AdapterFailures => AdapterFailures.badRowAdapterFailuresJsonEncoder.apply(f)
     case f: TrackerProtocolViolations => TrackerProtocolViolations.badRowTrackerProtocolViolationsJsonEncoder.apply(f)
     case f: SchemaViolations => SchemaViolations.badRowSchemaViolationsJsonEncoder.apply(f)
     case f: EnrichmentFailures => EnrichmentFailures.badRowEnrichmentFailuresJsonEncoder.apply(f)
-    // Generic Loaders
+    // Loaders
     case f: LoaderParsingError => LoaderParsingError.badRowLoaderParsingErrorsJsonEncoder.apply(f)
     case f: LoaderIgluError => LoaderIgluError.badRowLoaderIgluErrorsJsonEncoder.apply(f)
     case f: LoaderRuntimeError => LoaderRuntimeError.badRowLoaderRuntimeErrorsJsonEncoder.apply(f)
@@ -50,22 +50,23 @@ object BadRow {
   }
 
   implicit val badRowDecoder: Decoder[BadRow] = List[Decoder[BadRow]](
-    // Stream Collector
+    // Collector / Enrich
     SizeViolation.badRowSizeViolationJsonDecoder.widen,
-    // Scala Common Enrich
+    // Enrich
     CPFormatViolation.badRowCPFormatViolationJsonDecoder.widen,
     AdapterFailures.badRowAdapterFailuresJsonDecoder.widen,
     TrackerProtocolViolations.badRowTrackerProtocolViolationsJsonDecoder.widen,
     SchemaViolations.badRowSchemaViolationsJsonDecoder.widen,
     EnrichmentFailures.badRowEnrichmentFailuresJsonDecoder.widen,
-    // Generic Loaders
+    // Loaders
     LoaderRuntimeError.badRowLoaderRuntimeErrorsJsonDecoder.widen,
     LoaderParsingError.badRowLoaderParsingErrorsJsonDecoder.widen,
     LoaderIgluError.badRowLoaderIgluErrorsJsonDecoder.widen,
     LoaderRecoveryError.badRowLoaderRecoveryErrorJsonDecoder.widen
   ).reduceLeft(_ or _)
 
-  /** Created by Collector when the event that it receives is bigger that the max authorized size.
+  /** Created by the collector or by the enrich job when the size of the message to send
+    * to the queue is bigger that the max authorized size.
     * This limit is usually determined by the message queue (e.g. 10MB for a message for PubSub).
     */
   final case class SizeViolation(processor: Processor, failure: Failure.SizeViolation, payload: Payload.RawPayload) extends BadRow {

@@ -17,10 +17,9 @@ import java.util.UUID
 
 import org.joda.time.DateTime
 
-import cats.syntax.functor._
-import cats.syntax.either._
+import cats.implicits._
 
-import io.circe.{Decoder, Encoder}
+import io.circe.{Decoder, DecodingFailure, Encoder, Json, JsonObject, HCursor}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
 
@@ -96,7 +95,7 @@ object Payload {
   final case class RawEvent(
     vendor: String,
     version: String,
-    parameters: Map[String, String],
+    parameters: List[NVP],
     contentType: Option[String],
     loaderName: String,
     encoding: String,
@@ -260,9 +259,36 @@ object Payload {
   }
 }
 
-/** Helper used to define a [[Payload.CollectorPayload]]. Isomoprhic to `org.apache.http.NaveValuePair` */
+/** Helper used to define a [[Payload.CollectorPayload]] and a [[Payload.RawEvent]].
+  * Isomoprhic to `org.apache.http.NameValuePair` but without null values.
+  */
 final case class NVP(name: String, value: Option[String])
 object NVP {
   implicit val nvpEncoder: Encoder[NVP] = deriveEncoder
   implicit val nvpDecoder: Decoder[NVP] = deriveDecoder
+  implicit val nvpsDecoder: Decoder[List[NVP]] = new Decoder[List[NVP]] {
+    final def apply(cur: HCursor): Decoder.Result[List[NVP]] =
+      cur.focus  match {
+        case Some(json) =>
+          json.fold(
+            DecodingFailure("query string (payload.raw.parameters) can not be null", cur.history).asLeft,
+            b => DecodingFailure(s"query string (payload.raw.parameters) can not be boolean, [$b] provided", cur.history).asLeft,
+            n => DecodingFailure(s"query string (payload.raw.parameters) cannot be number, [$n] provided", cur.history).asLeft,
+            s => DecodingFailure(s"query string (payload.raw.parameters) cannot be string, [$s] provided", cur.history).asLeft,
+            a => arrayToNVPs(a),
+            o => objectToNVPs(o)
+          )
+        case None => DecodingFailure("query string (payload.raw.parameters) is missing", cur.history).asLeft
+      }
+  }
+
+  private def arrayToNVPs(arr: Vector[Json]): Decoder.Result[List[NVP]] =
+    arr
+      .toList
+      .traverse(_.as[NVP])
+
+  private def objectToNVPs(obj: JsonObject): Decoder.Result[List[NVP]] =
+    obj
+      .toList
+      .traverse { case (key, value) => value.as[Option[String]].map(v => NVP(key, v)) }
 }
