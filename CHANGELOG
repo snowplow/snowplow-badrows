@@ -1,3 +1,10 @@
+Version 0.2.0 (2020-04-16)
+--------------------------
+Remove EnrichmentStageIssue (#32)
+Update registry to Iglu Central in unit tests (#34)
+Update type of RawEvent.parameters to List[NVP] for EnrichmentPayload (#33)
+Make collector_tstamp, v_collector and v_etl optional in PartiallyEnrichedEvent (#39)
+
 Version 0.1.0 (2020-01-06)
 --------------------------
 Initial release
