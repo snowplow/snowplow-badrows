@@ -42,7 +42,7 @@ object PayloadGen {
     } yield Payload.RawEvent(vendor, version, querystring, contentType, loaderName, encoding, hostname, timestamp, ipAddress, optStr, optStr, headers, userId)
 
   val partiallyEnrichedEvent: Gen[Payload.PartiallyEnrichedEvent] =
-    Gen.const(Payload.PartiallyEnrichedEvent(None,None,None,"2019-10-22",None,None,None,None,None,None,"0.10.0","0.2.0",None,None,
+    Gen.const(Payload.PartiallyEnrichedEvent(None,None,None,Some("2019-10-22"),None,None,None,None,None,None,Some("0.10.0"),Some("0.2.0"),None,None,
       None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,
       None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,
       None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,
