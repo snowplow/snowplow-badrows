@@ -132,6 +132,17 @@ object CommonGen {
       Processor("snowplow-stream-enrich", "0.23.0-rc10")
     )
 
+  val platform: Gen[String] = Gen.oneOf("web", "mob", "app")
+
+  val version: Gen[String] = Gen.oneOf(
+    "0.22.0-rc4",
+    "js-2.11.0-rc1",
+    "ssc-0.15.0-kinesis",
+    "stream-enrich-0.21.0-common-0.37.0"
+  )
+
+  val eventType: Gen[String] = Gen.oneOf("page_view", "page_ping", "transaction", "unstruct")
+
   private def rowDecodingErrorInfo: Gen[ParsingError.RowDecodingErrorInfo] =
     for {
       message <- strGen(256, Gen.alphaNumChar)
