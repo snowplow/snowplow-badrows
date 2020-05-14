@@ -22,7 +22,7 @@ import cats.syntax.either._
 import cats.syntax.functor._
 
 import com.snowplowanalytics.iglu.core.{SelfDescribingData, SchemaKey}
-import com.snowplowanalytics.iglu.core.circe.instances._
+import com.snowplowanalytics.iglu.core.circe.implicits._
 
 import com.snowplowanalytics.snowplow.analytics.scalasdk.ParsingError
 

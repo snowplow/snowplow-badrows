@@ -16,9 +16,4 @@ package object badrows {
     Encoder[String].contramap(_.code)
   implicit val igluParseErrorDecoder: Decoder[ParseError] =
     Decoder[String].emap { s => ParseError.parse(s).toRight(s"$s is invalid Iglu ParseError") }
-
-  implicit val igluSchemaCriterionEncoder: Encoder[SchemaCriterion] =
-    Encoder[String].contramap(_.asString)
-  implicit val igluSchemaCriterionDecoder: Decoder[SchemaCriterion] =
-    Decoder[String].emap { s => SchemaCriterion.parse(s).toRight(s"$s is invalid Iglu schema criterion") }
 }

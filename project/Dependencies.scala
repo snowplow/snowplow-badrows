@@ -18,17 +18,16 @@ object Dependencies {
   lazy val SnowplowBintray = "Snowplow Bintray" at "https://snowplow.bintray.com/snowplow-maven"
 
   object V {
-    val circe        = "0.11.1"
-    val igluClient   = "0.6.1"
+    val circe        = "0.13.0"
+    val igluClient   = "1.0.0"
     val jodaTime     = "2.10.1"
-    val analyticsSdk = "1.0.0"
+    val analyticsSdk = "2.0.1"
     val specs2       = "4.8.0"
     val scalaCheck   = "1.14.0"
   }
 
   val All = List(
     "io.circe"              %% "circe-generic"                % V.circe,
-    "io.circe"              %% "circe-java8"                  % V.circe,
     "com.snowplowanalytics" %% "iglu-scala-client"            % V.igluClient,
     "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % V.analyticsSdk,
     "joda-time"             %  "joda-time"                    % V.jodaTime,

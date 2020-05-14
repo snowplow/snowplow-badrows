@@ -21,7 +21,6 @@ import cats.syntax.functor._
 import io.circe.{Encoder, Decoder}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
-import io.circe.java8.time._
 
 sealed trait Failure
 
