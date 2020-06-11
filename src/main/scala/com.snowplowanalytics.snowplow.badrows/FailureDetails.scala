@@ -14,7 +14,7 @@ package com.snowplowanalytics.snowplow.badrows
 
 import com.snowplowanalytics.iglu.client.ClientError
 import com.snowplowanalytics.iglu.core.{ParseError, SchemaCriterion, SchemaKey}
-import com.snowplowanalytics.iglu.core.circe.implicits._
+import com.snowplowanalytics.iglu.core.circe.implicits. { schemaCriterionDecoder => _, schemaCriterionEncoder => _, _}
 
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto._

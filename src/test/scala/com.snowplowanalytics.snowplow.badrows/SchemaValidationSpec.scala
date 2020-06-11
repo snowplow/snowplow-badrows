@@ -19,7 +19,8 @@ import cats.syntax.either._
 
 import io.circe.literal._
 import io.circe.syntax._
-import io.circe.{Json, parser, Decoder, Encoder}
+import io.circe.{Decoder, Encoder, parser}
+
 import org.scalacheck.Prop.forAll
 
 import org.specs2.ScalaCheck
@@ -28,8 +29,10 @@ import org.specs2.mutable.Specification
 import com.snowplowanalytics.iglu.client.{CirceValidator, Resolver}
 import com.snowplowanalytics.iglu.client.resolver.registries.Registry
 
-import SpecHelpers.IdInstances._
-import generators.BadRowGen
+import com.snowplowanalytics.snowplow.badrows.SpecHelpers.IdInstances._
+import com.snowplowanalytics.snowplow.badrows.generators.BadRowGen
+
+import org.scalacheck.util.Pretty
 
 class SchemaValidationSpec extends Specification with ScalaCheck {
   import SchemaValidationSpec._
@@ -79,6 +82,14 @@ class SchemaValidationSpec extends Specification with ScalaCheck {
 
 object SchemaValidationSpec {
 
+  private val http = Registry.HttpConnection(URI.create("http://iglucentral.com/"), None)
+  private val igluCentral = Registry.Http(Registry.Config("Iglu Central", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
+
+  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
+
+  implicit val prettyPrinter: BadRow => Pretty =
+    row => Pretty { _ => row.asJson.spaces2 }
+
   def validateBadRow[A <: BadRow: Decoder: Encoder](badRow: BadRow) = {
     // JSON reparsing is added in order to check decoding
     val encoded = parser.parse(badRow.selfDescribingData.data.noSpaces)
@@ -86,14 +97,8 @@ object SchemaValidationSpec {
     val decoded = encoded.as[A].getOrElse(throw new RuntimeException(s"Error while decoding bad row: ${encoded.as[A]}"))
       .asJson
     val schema = resolver.lookupSchema(badRow.schemaKey)
-    CirceValidator.validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
+    CirceValidator
+      .validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
+      .leftMap(_.toClientError.asJson)
   }
-
-  val http = Registry.HttpConnection(URI.create("http://iglucentral.com/"), None)
-  val igluCentral = Registry.Http(Registry.Config("Iglu Central", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
-
-  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
-
-  val mockJsonValue =
-    Json.obj("mockJsonKey" := "mockJsonValue")
 }
