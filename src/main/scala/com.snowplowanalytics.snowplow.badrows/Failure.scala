@@ -15,7 +15,6 @@ package com.snowplowanalytics.snowplow.badrows
 import java.time.Instant
 
 import cats.data.NonEmptyList
-import cats.syntax.either._
 import cats.syntax.functor._
 
 import io.circe.{Encoder, Decoder}

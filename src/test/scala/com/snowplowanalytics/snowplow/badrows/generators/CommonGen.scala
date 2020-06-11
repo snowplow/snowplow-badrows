@@ -146,7 +146,7 @@ object CommonGen {
   private def rowDecodingErrorInfo: Gen[ParsingError.RowDecodingErrorInfo] =
     for {
       message <- strGen(256, Gen.alphaNumChar)
-      key <- Gen.oneOf('collectorTstamp, 'eventId, 'trueTstamp, 'pageUrl)
+      key <- Gen.oneOf(Symbol("collectorTstamp"), Symbol("eventId"), Symbol("trueTstamp"), Symbol("pageUrl"))
       value <- strGen(256, Gen.alphaNumChar)
       data <- Gen.oneOf(true, false).map {
         case true => ParsingError.RowDecodingErrorInfo.InvalidValue(key, value, message)

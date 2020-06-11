@@ -17,8 +17,6 @@ import io.circe.{Encoder, Decoder, HCursor, Json}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
 
-import cats.data.NonEmptyList
-import cats.syntax.either._
 import cats.syntax.functor._
 
 import com.snowplowanalytics.iglu.core.{SelfDescribingData, SchemaKey}

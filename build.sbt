@@ -11,18 +11,14 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import BuildSettings.{ scalacOptions => opts, scalacOptions212 }
-
 lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
     version := "1.0.0",
     organization := "com.snowplowanalytics",
-    scalaVersion := "2.12.10",
-    crossScalaVersions := Seq("2.12.10"),
-    scalacOptions := { if (scalaVersion.value.startsWith("2.11")) opts else opts ++ scalacOptions212 },
-    cancelable in Global := true,
-    scalacOptions in (Compile, console) --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
+    scalaVersion := "2.12.11",
+    crossScalaVersions := Seq("2.12.11", "2.13.2"),
+    cancelable in Global := true
   )
   .settings(
     libraryDependencies := Dependencies.All,
