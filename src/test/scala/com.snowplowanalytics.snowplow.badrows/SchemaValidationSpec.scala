@@ -91,7 +91,10 @@ object SchemaValidationSpec {
   private val http = Registry.HttpConnection(URI.create("http://iglucentral.com/"), None)
   private val igluCentral = Registry.Http(Registry.Config("Iglu Central", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
 
-  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
+  private val httpBranch = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/generic_bad_row/"), None)
+  private val branch = Registry.Http(Registry.Config("Branch with generic bad row", 0, List("com.snowplowanalytics.snowplow.badrows")), httpBranch)
+
+  val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral, branch)
 
   implicit val prettyPrinter: BadRow => Pretty =
     row => Pretty { _ => row.asJson.spaces2 }
