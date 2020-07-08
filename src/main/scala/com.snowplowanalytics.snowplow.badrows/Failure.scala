@@ -171,7 +171,7 @@ object Failure {
     implicit val failureRecoveryJsonDecoder: Decoder[RecoveryFailure] =
       deriveDecoder[RecoveryFailure]
   }
-  
+
   /** Failure for a generic bad row. */
   final case class GenericFailure(timestamp: Instant, errors: NonEmptyList[String]) extends Failure
   object GenericFailure {

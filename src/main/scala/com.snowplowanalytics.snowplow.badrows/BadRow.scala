@@ -230,7 +230,7 @@ object BadRow {
         } yield RecoveryError(processor, failure, payload, recoveries)
     }
   }
-  
+
   /** Generic bad row. */
   final case class GenericError(processor: Processor, failure: Failure.GenericFailure, payload: Payload.RawPayload) extends BadRow {
     def schemaKey: SchemaKey = Schemas.GenericError
