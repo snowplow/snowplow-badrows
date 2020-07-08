@@ -47,6 +47,8 @@ object BadRow {
     case f: LoaderRecoveryError => LoaderRecoveryError.badRowLoaderRecoveryErrorJsonEncoder.apply(f)
     // Recovery
     case f: RecoveryError => RecoveryError.badRowRecoveryErrorJsonEncoder.apply(f)
+    // GenericError
+    case f: GenericError => GenericError.badRowGenericErrorJsonEncoder.apply(f)
   }
 
   implicit val badRowDecoder: Decoder[BadRow] = List[Decoder[BadRow]](
@@ -64,7 +66,9 @@ object BadRow {
     LoaderIgluError.badRowLoaderIgluErrorsJsonDecoder.widen,
     LoaderRecoveryError.badRowLoaderRecoveryErrorJsonDecoder.widen,
     // Recovery
-    RecoveryError.badRowRecoveryErrorJsonDecoder.widen
+    RecoveryError.badRowRecoveryErrorJsonDecoder.widen,
+    // GenericError
+    GenericError.badRowGenericErrorJsonDecoder.widen
   ).reduceLeft(_ or _)
 
   /** Created by the collector or by the enrich job when the size of the message to send
@@ -225,5 +229,16 @@ object BadRow {
           recoveries <- c.downField("recoveries").as[Int]
         } yield RecoveryError(processor, failure, payload, recoveries)
     }
+  }
+  
+  /** Generic bad row. */
+  final case class GenericError(processor: Processor, failure: Failure.GenericFailure, payload: Payload.RawPayload) extends BadRow {
+    def schemaKey: SchemaKey = Schemas.GenericError
+  }
+  object GenericError {
+    implicit val badRowGenericErrorJsonEncoder: Encoder[GenericError] =
+      deriveEncoder[GenericError]
+    implicit val badRowGenericErrorJsonDecoder: Decoder[GenericError] =
+      deriveDecoder[GenericError]
   }
 }

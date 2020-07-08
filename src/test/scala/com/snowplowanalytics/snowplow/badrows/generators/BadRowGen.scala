@@ -98,4 +98,10 @@ object BadRowGen {
       payload <- Gen.oneOf(adapterFailures, cpFormatViolation, enrichmentFailures, loaderIgluError, loaderParsingError, loaderRuntimeErrorBadRowGen, loaderRecoveryErrorBadRowGen, schemaViolations, sizeViolation, trackerProtocolViolations)
     } yield BadRow.RecoveryError(processor, failure, payload, recoveries)
 
+  val genericErrorBadRowGen: Gen[BadRow.GenericError] =
+    for {
+      processor <- CommonGen.processor
+      failure <- FailureGen.genericFailure
+      payload <- PayloadGen.rawPayload
+    } yield BadRow.GenericError(processor, failure, payload)
 }
