@@ -43,13 +43,13 @@ object Payload {
     LoaderPayload.payloadLoaderPayloadJsonDecoder.widen
   ).reduceLeft(_ or _)
 
-  /** Payload received by a collector, before being interpreted (in Scala Common Enrich).
-    * A raw payload can be serialized with Thrift, be a TSV or be a Cloudfront log for instance.
+  /** Payload containing the stringified event for which there is a bad row.
+    * This type of payload can be used in different types of bad row.
     */
-  final case class RawPayload(line: String) extends Payload
+  final case class RawPayload(event: String) extends Payload
   object RawPayload {
     implicit val payloadRawPayloadJsonEncoder: Encoder[RawPayload] =
-      Encoder.instance { p => p.line.asJson }
+      Encoder.instance { p => p.event.asJson }
     implicit val payloadRawPayloadJsonDecoder: Decoder[RawPayload] =
       Decoder.instance(_.as[String].map(RawPayload(_)))
   }

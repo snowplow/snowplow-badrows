@@ -78,6 +78,12 @@ class SchemaValidationSpec extends Specification with ScalaCheck {
       forAll(BadRowGen.recoveryErrorBadRowGen) { f =>
         validateBadRow[BadRow.RecoveryError](f) must beRight }
   }
+
+  "Generic" >> {
+    s"${Schemas.GenericError.toSchemaUri} (GenericError)" >>
+      forAll(BadRowGen.genericErrorBadRowGen) { f =>
+        validateBadRow[BadRow.GenericError](f) must beRight }
+  }
 }
 
 object SchemaValidationSpec {

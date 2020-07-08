@@ -37,6 +37,7 @@ object Failure {
     case f: LoaderIgluErrors => LoaderIgluErrors.failureLoaderIgluErrorsJsonEncoder.apply(f)
     case f: LoaderRecoveryFailure => LoaderRecoveryFailure.failureLoaderRecoveryJsonEncoder.apply(f)
     case f: RecoveryFailure => RecoveryFailure.failureRecoveryJsonEncoder.apply(f)
+    case f: GenericFailure => GenericFailure.failureGenericJsonEncoder.apply(f)
   }
   implicit val failureDecoder: Decoder[Failure] = List[Decoder[Failure]](
     CPFormatViolation.failureCPFormatViolationJsonDecoder.widen,
@@ -48,7 +49,8 @@ object Failure {
     LoaderParsingErrors.failureLoaderParsingErrorsJsonDecoder.widen,
     LoaderIgluErrors.failureLoaderIgluErrorsJsonDecoder.widen,
     LoaderRecoveryFailure.failureLoaderRecoveryJsonDecoder.widen,
-    RecoveryFailure.failureRecoveryJsonDecoder.widen
+    RecoveryFailure.failureRecoveryJsonDecoder.widen,
+    GenericFailure.failureGenericJsonDecoder.widen
   ).reduceLeft(_ or _)
 
   final case class CPFormatViolation(
@@ -168,5 +170,14 @@ object Failure {
       deriveEncoder[RecoveryFailure]
     implicit val failureRecoveryJsonDecoder: Decoder[RecoveryFailure] =
       deriveDecoder[RecoveryFailure]
+  }
+
+  /** Failure for a generic bad row. */
+  final case class GenericFailure(timestamp: Instant, errors: NonEmptyList[String]) extends Failure
+  object GenericFailure {
+    implicit val failureGenericJsonEncoder: Encoder[GenericFailure] =
+      deriveEncoder[GenericFailure]
+    implicit val failureGenericJsonDecoder: Decoder[GenericFailure] =
+      deriveDecoder[GenericFailure]
   }
 }
