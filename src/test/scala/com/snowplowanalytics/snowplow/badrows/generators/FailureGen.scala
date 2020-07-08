@@ -70,4 +70,10 @@ object FailureGen {
       message <- Gen.alphaNumStr
       configName <- Gen.option(Gen.alphaNumStr)
     } yield Failure.RecoveryFailure(message, configName)
+
+    val genericFailure: Gen[Failure.GenericFailure] =
+    for {
+      timestamp <- CommonGen.instantGen
+      errors <- CommonGen.nonEmptyListOfMaxN(12, CommonGen.strGen(1024, Gen.alphaNumChar)).map(NonEmptyList.fromListUnsafe)
+    } yield Failure.GenericFailure(timestamp, errors)
 }
