@@ -13,29 +13,25 @@
 
 import sbt._
 import sbt.Keys._
-import bintray.BintrayPlugin.autoImport.{bintrayOrganization, bintrayRepository}
 
+// dynver plugin
+import sbtdynver.DynVerPlugin.autoImport._
 
 object BuildSettings {
   lazy val publishSettings = Seq(
-    publishMavenStyle := true,
     publishArtifact := true,
-    publishArtifact in Test := false,
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayOrganization := Some("snowplow"),
-    bintrayRepository := "snowplow-maven",
+    Test / publishArtifact := false,
     pomIncludeRepository := { _ => false },
+    ThisBuild / dynverVTagPrefix := false, // Otherwise git tags required to have v-prefix
+    developers := List(
+      Developer(
+        "Snowplow Analytics Ltd",
+        "Snowplow Analytics Ltd",
+        "support@snowplowanalytics.com",
+        url("https://snowplowanalytics.com")
+      )
+    ),
+    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     homepage := Some(url("http://snowplowanalytics.com")),
-    scmInfo := Some(ScmInfo(url("https://github.com/snowplow-incubator/snowplow-badrows"),
-      "scm:git@github.com:snowplow-incubator/snowplow-badrows.git")),
-    pomExtra := (
-      <developers>
-        <developer>
-          <name>Snowplow Analytics Ltd</name>
-          <email>support@snowplowanalytics.com</email>
-          <organization>Snowplow Analytics Ltd</organization>
-          <organizationUrl>http://snowplowanalytics.com</organizationUrl>
-        </developer>
-      </developers>)
   )
 }

@@ -14,9 +14,6 @@ import sbt._
 
 object Dependencies {
 
-  // Speed-up fetching of Snowplow assets
-  lazy val SnowplowBintray = "Snowplow Bintray" at "https://snowplow.bintray.com/snowplow-maven"
-
   object V {
     val circe        = "0.14.1"
     val igluClient   = "1.1.1"

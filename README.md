@@ -2,7 +2,7 @@
 
 [![License][license-image]][license]
 [![Maven Central][release-image]][release]
-[![Travis][travis-image]][travis]
+[![BuildStatus][ci-image]][ci]
 
 This project holds the data model for the bad rows we can encounter in Snowplow pipeline.
 
@@ -20,11 +20,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-[travis]: https://travis-ci.org/snowplow-incubator/snowplow-badrows
-[travis-image]: https://travis-ci.org/snowplow-incubator/snowplow-badrows.png?branch=master
+[ci]: https://github.com/snowplow-incubator/snowplow-badrows/actions?query=workflow%3ACI
+[ci-image]: https://github.com/snowplow-incubator/snowplow-badrows/workflows/CI/badge.svg
 
 [license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
 [license]: http://www.apache.org/licenses/LICENSE-2.0
 
-[release-image]: https://img.shields.io/maven-central/v/com.snowplowanalytics/snowplow-badrows_2.12.svg
-[release]: https://maven-badges.herokuapp.com/maven-central/com.snowplowanalytics/snowplow-badrows_2.12
+[release-image]: https://maven-badges.herokuapp.com/maven-central/com.snowplowanalytics/snowplow-badrows_2.12/badge.svg
+[release]: https://github.com/snowplow-incubator/snowplow-badrows/releases
