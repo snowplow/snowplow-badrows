@@ -18,7 +18,7 @@ object Dependencies {
   lazy val SnowplowBintray = "Snowplow Bintray" at "https://snowplow.bintray.com/snowplow-maven"
 
   object V {
-    val circe        = "0.13.0"
+    val circe        = "0.14.1"
     val igluClient   = "1.0.1"
     val jodaTime     = "2.10.10"
     val analyticsSdk = "2.0.1"
