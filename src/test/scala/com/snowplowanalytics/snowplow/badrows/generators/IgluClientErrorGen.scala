@@ -21,6 +21,8 @@ import com.snowplowanalytics.iglu.client.validator.{ValidatorError, ValidatorRep
 
 import org.scalacheck.Gen
 
+import scala.collection.immutable.SortedMap
+
 object IgluClientErrorGen {
 
   def clientError: Gen[ClientError] =
@@ -45,8 +47,9 @@ object IgluClientErrorGen {
     Gen
       .identifier
       .flatMap { k => lookupHistory.flatMap { v => (k, v) } }
-      .flatMap { kv => Gen.nonEmptyMap(kv) }
-      .map { map => ClientError.ResolutionError(map) }
+      .flatMap { kv => Gen.nonEmptyListOf(kv) }
+      .map(_.foldLeft(SortedMap.empty[String, LookupHistory])(_ + _))
+      .map(ClientError.ResolutionError(_))
 
   val validatorReport: Gen[ValidatorReport] =
     for {
