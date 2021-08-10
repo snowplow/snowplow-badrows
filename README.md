@@ -8,7 +8,7 @@ This project holds the data model for the bad rows we can encounter in Snowplow 
 
 ## Copyright and License
 
-Snowplow snowplow-badrows is copyright 2018-2020 Snowplow Analytics Ltd.
+Snowplow snowplow-badrows is copyright 2018-2021 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
