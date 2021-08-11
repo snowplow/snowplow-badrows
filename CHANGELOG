@@ -1,3 +1,15 @@
+Version 2.1.1 (2021-08-11)
+--------------------------
+Exclude transitive dependencies of iglu-scala-client (#63)
+Extend copyright notice to 2021 (#62)
+Publish scaladoc to github pages (#60)
+Migrate from travis to github actions (#59)
+Bump snowplow-scala-analytics-sdk to 2.1.0 (#52)
+Bump sbt to 1.5.5 (#58)
+Bump iglu-scala-client to 1.1.1 (#57)
+Bump circe to 0.14.1 (#56)
+Bump joda-time to 2.10.10 (#55)
+
 Version 2.1.0 (2020-07-22)
 --------------------------
 Add generic bad row type (#47)
