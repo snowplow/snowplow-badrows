@@ -15,6 +15,7 @@ import sbt._
 object Dependencies {
 
   object V {
+    val cats         = "2.6.1"
     val circe        = "0.14.1"
     val igluClient   = "1.1.1"
     val jodaTime     = "2.10.10"
@@ -24,8 +25,13 @@ object Dependencies {
   }
 
   val All = List(
+    "org.typelevel"         %% "cats-core"                    % V.cats,
     "io.circe"              %% "circe-generic"                % V.circe,
-    "com.snowplowanalytics" %% "iglu-scala-client"            % V.igluClient,
+    "com.snowplowanalytics" %% "iglu-scala-client"            % V.igluClient excludeAll(
+      // We only use iglu-scala-client for the simple case classes it defines.
+      // This excludes anything related to http transactions.
+      ExclusionRule.everything
+    ),
     "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % V.analyticsSdk,
     "joda-time"             %  "joda-time"                    % V.jodaTime,
 
@@ -33,6 +39,7 @@ object Dependencies {
     "io.circe"              %% "circe-literal"                % V.circe      % Test,
     "org.specs2"            %% "specs2-core"                  % V.specs2     % Test,
     "org.specs2"            %% "specs2-scalacheck"            % V.specs2     % Test,
-    "org.scalacheck"        %% "scalacheck"                   % V.scalaCheck % Test
+    "org.scalacheck"        %% "scalacheck"                   % V.scalaCheck % Test,
+    "com.snowplowanalytics" %% "iglu-scala-client"            % V.igluClient % Test
   )
 }
