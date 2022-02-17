@@ -5,7 +5,7 @@
 [![BuildStatus][ci-image]][ci]
 
 This project holds the data model for the bad rows we can encounter in Snowplow pipeline.
-See the [scaladoc](https://snowplow.github.io/snowplow-badrows/2.1.1/) for the API reference.
+See the [scaladoc](https://snowplow.github.io/snowplow-badrows/) for the API reference.
 
 ## Copyright and License
 
