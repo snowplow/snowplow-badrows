@@ -15,8 +15,8 @@ lazy val root = project.in(file("."))
   .settings(
     name := "snowplow-badrows",
     organization := "com.snowplowanalytics",
-    scalaVersion := "2.12.11",
-    crossScalaVersions := Seq("2.12.11", "2.13.2"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.12.15", "2.13.8"),
     cancelable in Global := true
   )
   .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, PreprocessPlugin)
