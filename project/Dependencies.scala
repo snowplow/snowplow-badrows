@@ -22,7 +22,7 @@ object Dependencies {
     val jodaTime     = "2.10.14"
     val analyticsSdk = "2.1.0"
     val specs2       = "4.15.0"
-    val scalaCheck   = "1.14.3"
+    val scalaCheck   = "1.16.0"
   }
 
   val All = List(
