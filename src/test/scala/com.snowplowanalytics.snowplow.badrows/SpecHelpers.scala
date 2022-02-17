@@ -15,12 +15,12 @@ package com.snowplowanalytics.snowplow.badrows
 import java.util.UUID
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-
-import cats.Id
+import cats.{Applicative, Id}
 import cats.effect.Clock
-
 import com.snowplowanalytics.snowplow.analytics.scalasdk.Event
 import com.snowplowanalytics.snowplow.analytics.scalasdk.SnowplowEvent.{Contexts, UnstructEvent}
+
+import scala.concurrent.duration.FiniteDuration
 
 object SpecHelpers {
   def emptyEvent(id: UUID, collectorTstamp: Instant, vCollector: String, vTstamp: String): Event =
@@ -41,11 +41,13 @@ object SpecHelpers {
 
   object IdInstances {
     implicit val idClock: Clock[Id] = new Clock[Id] {
-      def realTime(unit: TimeUnit): Id[Long] =
-        unit.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
 
-      def monotonic(unit: TimeUnit): Id[Long] =
-        unit.convert(System.nanoTime(), TimeUnit.NANOSECONDS)
+      override def applicative: Applicative[Id] = Applicative[Id]
+
+      override def monotonic: Id[FiniteDuration] = FiniteDuration(System.nanoTime(), TimeUnit.NANOSECONDS)
+
+      override def realTime: Id[FiniteDuration] = FiniteDuration(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+
     }
   }
 }

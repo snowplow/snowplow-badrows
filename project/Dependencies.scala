@@ -15,9 +15,10 @@ import sbt._
 object Dependencies {
 
   object V {
-    val cats         = "2.6.1"
+    val cats         = "2.7.0"
+    val catsEffect   = "3.3.12"
     val circe        = "0.14.1"
-    val igluClient   = "1.1.1"
+    val igluClient   = "2.0.0"
     val jodaTime     = "2.10.10"
     val analyticsSdk = "2.1.0"
     val specs2       = "4.9.4"
@@ -35,6 +36,7 @@ object Dependencies {
     "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % V.analyticsSdk,
     "joda-time"             %  "joda-time"                    % V.jodaTime,
 
+    "org.typelevel"         %% "cats-effect"                  % V.catsEffect % Test,
     "io.circe"              %% "circe-jawn"                   % V.circe      % Test,
     "io.circe"              %% "circe-literal"                % V.circe      % Test,
     "org.specs2"            %% "specs2-core"                  % V.specs2     % Test,
