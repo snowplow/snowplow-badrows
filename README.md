@@ -9,7 +9,7 @@ See the [scaladoc](https://snowplow.github.io/snowplow-badrows/2.1.1/) for the A
 
 ## Copyright and License
 
-Snowplow snowplow-badrows is copyright 2018-2021 Snowplow Analytics Ltd.
+Snowplow snowplow-badrows is copyright 2018-2022 Snowplow Analytics Ltd.
 
 Licensed under the **[Apache License, Version 2.0][license]** (the "License");
 you may not use this software except in compliance with the License.
