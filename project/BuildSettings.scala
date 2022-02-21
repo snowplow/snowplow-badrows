@@ -11,18 +11,15 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import sbt._
 import sbt.Keys._
+import sbt._
 
 // dynver plugin
 import sbtdynver.DynVerPlugin.autoImport._
 
-// GHPages plugin
-import com.typesafe.sbt.sbtghpages.GhpagesPlugin.autoImport._
-import com.typesafe.sbt.site.SitePlugin.autoImport.{makeSite, siteSubdirName}
-import com.typesafe.sbt.SbtGit.GitKeys.{gitBranch, gitRemoteRepo}
+// Site plugin
+import com.typesafe.sbt.site.SitePlugin.autoImport.siteSubdirName
 import com.typesafe.sbt.site.SiteScaladocPlugin.autoImport._
-import com.typesafe.sbt.site.preprocess.PreprocessPlugin.autoImport._
 
 object BuildSettings {
   lazy val publishSettings = Seq(
@@ -42,15 +39,7 @@ object BuildSettings {
     homepage := Some(url("http://snowplowanalytics.com")),
   )
 
-  lazy val ghPagesSettings = Seq(
-    ghpagesPushSite := (ghpagesPushSite dependsOn makeSite).value,
-    ghpagesNoJekyll := false,
-    gitRemoteRepo := "git@github.com:snowplow-incubator/snowplow-badrows.git",
-    gitBranch := Some("gh-pages"),
-    SiteScaladoc / siteSubdirName := s"${version.value}",
-    Preprocess / preprocessVars := Map("VERSION" -> version.value),
-    ghpagesCleanSite / excludeFilter := new FileFilter {
-      def accept(f: File) = true
-    }
+  lazy val docSettings = Seq(
+    SiteScaladoc / siteSubdirName := s"${version.value}"
   )
 }

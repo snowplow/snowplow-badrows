@@ -19,9 +19,9 @@ lazy val root = project.in(file("."))
     crossScalaVersions := Seq("2.12.15", "2.13.8"),
     cancelable in Global := true
   )
-  .enablePlugins(SiteScaladocPlugin, GhpagesPlugin, PreprocessPlugin)
+  .enablePlugins(SiteScaladocPlugin, PreprocessPlugin)
   .settings(
     libraryDependencies := Dependencies.All,
   )
   .settings(BuildSettings.publishSettings)
-  .settings(BuildSettings.ghPagesSettings)
+  .settings(BuildSettings.docSettings)
