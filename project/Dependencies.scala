@@ -18,7 +18,7 @@ object Dependencies {
     val cats         = "2.7.0"
     val catsEffect   = "3.3.12"
     val circe        = "0.14.1"
-    val igluClient   = "2.0.0"
+    val igluClient   = "2.1.0"
     val jodaTime     = "2.10.14"
     val analyticsSdk = "2.1.0"
     val specs2       = "4.15.0"
@@ -28,11 +28,7 @@ object Dependencies {
   val All = List(
     "org.typelevel"         %% "cats-core"                    % V.cats,
     "io.circe"              %% "circe-generic"                % V.circe,
-    "com.snowplowanalytics" %% "iglu-scala-client"            % V.igluClient excludeAll(
-      // We only use iglu-scala-client for the simple case classes it defines.
-      // This excludes anything related to http transactions.
-      ExclusionRule.everything
-    ),
+    "com.snowplowanalytics" %% "iglu-scala-client-data"       % V.igluClient,
     "com.snowplowanalytics" %% "snowplow-scala-analytics-sdk" % V.analyticsSdk,
     "joda-time"             %  "joda-time"                    % V.jodaTime,
 
