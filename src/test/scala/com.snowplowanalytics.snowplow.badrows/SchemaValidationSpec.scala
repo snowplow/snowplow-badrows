@@ -88,7 +88,9 @@ class SchemaValidationSpec extends Specification with ScalaCheck {
 
 object SchemaValidationSpec {
 
-  private val http = Registry.HttpConnection(URI.create("http://iglucentral.com/"), None)
+  // TODO: Replace github link with iglu central after new bad row schemas are published
+  //private val http = Registry.HttpConnection(URI.create("http://iglucentral.com/"), None)
+  private val http = Registry.HttpConnection(URI.create("https://raw.githubusercontent.com/snowplow/iglu-central/badrows-with-supersededby/"), None)
   private val igluCentral = Registry.Http(Registry.Config("Iglu Central", 0, List("com.snowplowanalytics.snowplow.badrows")), http)
 
   val resolver: Resolver[Id] = Resolver.init[Id](10, None, igluCentral)
@@ -105,6 +107,6 @@ object SchemaValidationSpec {
     val schema = resolver.lookupSchema(badRow.schemaKey)
     CirceValidator
       .validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
-      .leftMap(_.toClientError.asJson)
+      .leftMap(_.toClientError(None).asJson)
   }
 }
