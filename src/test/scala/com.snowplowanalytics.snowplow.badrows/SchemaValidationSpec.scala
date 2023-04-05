@@ -105,6 +105,6 @@ object SchemaValidationSpec {
     val schema = resolver.lookupSchema(badRow.schemaKey)
     CirceValidator
       .validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
-      .leftMap(_.toClientError.asJson)
+      .leftMap(_.toClientError(None).asJson)
   }
 }

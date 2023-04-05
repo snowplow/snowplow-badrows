@@ -79,7 +79,13 @@ object IgluClientErrorGen {
   val validatorError: Gen[ValidatorError] =
     Gen.oneOf(invalidData, invalidSchema)
 
+  val supersededBy: Gen[Option[String]] =
+    CommonGen.schemaVer.flatMap(v => Gen.option(v.asString))
+
   val validationError: Gen[ClientError.ValidationError] =
-    validatorError.map(ClientError.ValidationError.apply)
+    for {
+      s <- supersededBy
+      e <- validatorError
+    } yield ClientError.ValidationError(e, s)
 
 }
