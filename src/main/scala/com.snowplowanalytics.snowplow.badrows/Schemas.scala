@@ -25,19 +25,19 @@ object Schemas {
   val AdapterFailures = SchemaKey("com.snowplowanalytics.snowplow.badrows", "adapter_failures", "jsonschema", SchemaVer.Full(1, 0, 0))
 
   /** @see [[BadRow.TrackerProtocolViolations]] */
-  val TrackerProtocolViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "tracker_protocol_violations", "jsonschema", SchemaVer.Full(1, 0, 0))
+  val TrackerProtocolViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "tracker_protocol_violations", "jsonschema", SchemaVer.Full(1, 0, 1))
 
   /** @see [[BadRow.SchemaViolations]] */
-  val SchemaViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "schema_violations", "jsonschema", SchemaVer.Full(2, 0, 0))
+  val SchemaViolations = SchemaKey("com.snowplowanalytics.snowplow.badrows", "schema_violations", "jsonschema", SchemaVer.Full(2, 0, 1))
 
   /** @see [[BadRow.EnrichmentFailures]] */
-  val EnrichmentFailures = SchemaKey("com.snowplowanalytics.snowplow.badrows", "enrichment_failures", "jsonschema", SchemaVer.Full(2, 0, 0))
+  val EnrichmentFailures = SchemaKey("com.snowplowanalytics.snowplow.badrows", "enrichment_failures", "jsonschema", SchemaVer.Full(2, 0, 1))
 
   /** @see [[BadRow.LoaderParsingError]] */
   val LoaderParsingError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_parsing_error", "jsonschema", SchemaVer.Full(2, 0, 0))
 
   /** @see [[BadRow.LoaderIgluError]] */
-  val LoaderIgluError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_iglu_error", "jsonschema", SchemaVer.Full(2, 0, 0))
+  val LoaderIgluError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_iglu_error", "jsonschema", SchemaVer.Full(2, 0, 1))
 
   /** @see [[BadRow.LoaderRuntimeError]] */
   val LoaderRuntimeError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_runtime_error", "jsonschema", SchemaVer.Full(1, 0, 1))
@@ -46,7 +46,7 @@ object Schemas {
   val LoaderRecoveryError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "loader_recovery_error", "jsonschema", SchemaVer.Full(1, 0, 0))
 
   /** @see [[BadRow.RecoveryError]] */
-  val RecoveryError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "recovery_error", "jsonschema", SchemaVer.Full(1, 0, 0))
+  val RecoveryError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "recovery_error", "jsonschema", SchemaVer.Full(1, 0, 1))
 
   /** @see [[BadRow.GenericError]] */
   val GenericError = SchemaKey("com.snowplowanalytics.snowplow.badrows", "generic_error", "jsonschema", SchemaVer.Full(1, 0, 0))
