@@ -17,10 +17,10 @@ object Dependencies {
   object V {
     val cats         = "2.7.0"
     val catsEffect   = "3.3.12"
-    val circe        = "0.14.2"
-    val igluClient   = "2.1.0"
+    val circe        = "0.14.3"
+    val igluClient   = "3.0.0"
     val jodaTime     = "2.10.14"
-    val analyticsSdk = "3.0.1"
+    val analyticsSdk = "3.1.0"
     val specs2       = "4.15.0"
     val scalaCheck   = "1.16.0"
   }

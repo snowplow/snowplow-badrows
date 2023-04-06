@@ -13,20 +13,16 @@
 package com.snowplowanalytics.snowplow.badrows
 
 import java.net.URI
-
 import cats.Id
 import cats.syntax.either._
-
 import io.circe.literal._
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, parser}
-
+import io.circe.{parser, Decoder, Encoder}
 import org.scalacheck.Prop.forAll
-
 import org.specs2.ScalaCheck
 import org.specs2.mutable.Specification
-
 import com.snowplowanalytics.iglu.client.{CirceValidator, Resolver}
+import com.snowplowanalytics.iglu.client.resolver.registries.JavaNetRegistryLookup.idLookupInstance
 import com.snowplowanalytics.iglu.client.resolver.registries.Registry
 
 import com.snowplowanalytics.snowplow.badrows.SpecHelpers.IdInstances._
@@ -105,6 +101,6 @@ object SchemaValidationSpec {
     val schema = resolver.lookupSchema(badRow.schemaKey)
     CirceValidator
       .validate(decoded, schema.getOrElse(throw new RuntimeException(s"Schema could not be found: $schema")))
-      .leftMap(_.toClientError.asJson)
+      .leftMap(_.toClientError(None).asJson)
   }
 }
