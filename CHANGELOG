@@ -1,3 +1,7 @@
+Version 2.1.2 (2023-05-03)
+--------------------------
+Use new versions of bad row schemas effected from supersededBy change (#79)
+
 Version 2.1.1 (2021-08-11)
 --------------------------
 Exclude transitive dependencies of iglu-scala-client (#63)
