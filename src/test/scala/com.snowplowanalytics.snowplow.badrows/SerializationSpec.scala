@@ -33,6 +33,18 @@ class SerializationSpec extends Specification with ScalaCheck {
         roundTripped must matchOriginal(input)
     }
 
+  "bad rows must roundtrip via byte buffer" >>
+      forAll(BadRowGen.anyBadRowGen) { input =>
+        val roundTripped = parser.parseByteBuffer(input.compactByteBuffer)
+        roundTripped must matchOriginal(input)
+    }
+
+  "bad rows must roundtrip via byte array" >>
+      forAll(BadRowGen.anyBadRowGen) { input =>
+        val roundTripped = parser.parseByteArray(input.compactByteArray)
+        roundTripped must matchOriginal(input)
+    }
+
   def matchOriginal(expected: BadRow): Matcher[Either[ParsingFailure, Json]] = { (result: Either[ParsingFailure, Json]) =>
     result must beRight { (json: Json) =>
       json.as[SelfDescribingData[BadRow]] must beRight { (sdd: SelfDescribingData[BadRow]) =>

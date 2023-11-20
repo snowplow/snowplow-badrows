@@ -13,12 +13,15 @@
 
 package com.snowplowanalytics.snowplow.badrows
 
-import io.circe.{Encoder, Decoder, HCursor, Json}
+import io.circe.{Encoder, Decoder, HCursor, Json, Printer}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
 
 import cats.syntax.functor._
 import cats.syntax.either._
+
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 
 import com.snowplowanalytics.iglu.core.{SelfDescribingData, SchemaKey}
 import com.snowplowanalytics.iglu.core.circe.implicits._
@@ -29,6 +32,13 @@ sealed trait BadRow {
   def schemaKey: SchemaKey
   def selfDescribingData: SelfDescribingData[Json] = SelfDescribingData(schemaKey, this.asJson)
   def compact: String = selfDescribingData.asJson.noSpaces
+  def compactByteBuffer: ByteBuffer = Printer.noSpaces.printToByteBuffer(selfDescribingData.asJson, StandardCharsets.UTF_8)
+  def compactByteArray: Array[Byte] = {
+    val bb = compactByteBuffer
+    val arr = Array.ofDim[Byte](bb.remaining())
+    bb.get(arr)
+    arr
+  }
 }
 
 object BadRow {
