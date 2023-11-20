@@ -14,7 +14,7 @@ package com.snowplowanalytics.snowplow.badrows.generators
 
 import cats.data.NonEmptyList
 
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 
 import com.snowplowanalytics.snowplow.badrows.{BadRow, Failure}
 
@@ -104,4 +104,23 @@ object BadRowGen {
       failure <- FailureGen.genericFailure
       payload <- PayloadGen.rawPayload
     } yield BadRow.GenericError(processor, failure, payload)
+
+  implicit val badRowArbitrary: Arbitrary[BadRow] = Arbitrary {
+    Gen.oneOf(
+      sizeViolation,
+      cpFormatViolation,
+      adapterFailures,
+      trackerProtocolViolations,
+      schemaViolations,
+      enrichmentFailures,
+      loaderParsingError,
+      loaderIgluError,
+      loaderRuntimeErrorBadRowGen,
+      loaderRecoveryErrorBadRowGen,
+      genericErrorBadRowGen
+    )
+  }
+
+  val anyBadRowGen: Gen[BadRow] =
+    Arbitrary.arbitrary[BadRow]
 }

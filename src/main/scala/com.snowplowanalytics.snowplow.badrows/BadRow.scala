@@ -18,6 +18,7 @@ import io.circe.generic.semiauto._
 import io.circe.syntax._
 
 import cats.syntax.functor._
+import cats.syntax.either._
 
 import com.snowplowanalytics.iglu.core.{SelfDescribingData, SchemaKey}
 import com.snowplowanalytics.iglu.core.circe.implicits._
@@ -51,6 +52,7 @@ object BadRow {
     case f: GenericError => GenericError.badRowGenericErrorJsonEncoder.apply(f)
   }
 
+  @scala.deprecated("Use Decoder[SelfDescribingData[BadRow]]", "2.3.0")
   implicit val badRowDecoder: Decoder[BadRow] = List[Decoder[BadRow]](
     // Collector / Enrich
     SizeViolation.badRowSizeViolationJsonDecoder.widen,
@@ -70,6 +72,40 @@ object BadRow {
     // GenericError
     GenericError.badRowGenericErrorJsonDecoder.widen
   ).reduceLeft(_ or _)
+
+  implicit val selfDescribingDecoder: Decoder[SelfDescribingData[BadRow]] =
+    Decoder[SelfDescribingData[Json]].emap { sdj =>
+      val dataDecoder: Decoder[BadRow] = sdj.schema match {
+        case SchemaKey(Schemas.Vendor, Schemas.Names.SizeViolation, _, _) =>
+          SizeViolation.badRowSizeViolationJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.CPFormatViolation, _, _) =>
+          CPFormatViolation.badRowCPFormatViolationJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.AdapterFailures, _, _) =>
+          AdapterFailures.badRowAdapterFailuresJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.TrackerProtocolViolations, _, _) =>
+          TrackerProtocolViolations.badRowTrackerProtocolViolationsJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.SchemaViolations, _, _) =>
+          SchemaViolations.badRowSchemaViolationsJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.EnrichmentFailures, _, _) =>
+          EnrichmentFailures.badRowEnrichmentFailuresJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.LoaderRuntimeError, _, _) =>
+          LoaderRuntimeError.badRowLoaderRuntimeErrorsJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.LoaderParsingError, _, _) =>
+          LoaderParsingError.badRowLoaderParsingErrorsJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.LoaderIgluError, _, _) =>
+          LoaderIgluError.badRowLoaderIgluErrorsJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.LoaderRecoveryError, _, _) =>
+          LoaderRecoveryError.badRowLoaderRecoveryErrorJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.RecoveryError, _, _) =>
+          RecoveryError.badRowRecoveryErrorJsonDecoder.widen
+        case SchemaKey(Schemas.Vendor, Schemas.Names.GenericError, _, _) =>
+          GenericError.badRowGenericErrorJsonDecoder.widen
+        case other => Decoder.failedWithMessage(s"Not a bad row schema key: ${other.toSchemaUri}")
+      }
+      dataDecoder.decodeJson(sdj.data)
+        .map(br => SelfDescribingData(sdj.schema, br))
+        .leftMap(_.getMessage)
+    }
 
   /** Created by the collector or by the enrich job when the size of the message to send
     * to the queue is bigger that the max authorized size.
@@ -225,7 +261,7 @@ object BadRow {
         for {
           processor <- c.downField("processor").as[Processor]
           failure <- c.downField("failure").as[Failure.RecoveryFailure]
-          payload <- c.downField("payload").downField("data").as[BadRow]
+          payload <- c.downField("payload").as[SelfDescribingData[BadRow]].map(_.data)
           recoveries <- c.downField("recoveries").as[Int]
         } yield RecoveryError(processor, failure, payload, recoveries)
     }

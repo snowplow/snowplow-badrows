@@ -38,8 +38,14 @@ object FailureDetailsGen {
     } yield FailureDetails.EnrichmentFailure(information, message)
 
   def loaderIgluError: Gen[FailureDetails.LoaderIgluError] =
-    Gen.oneOf(loaderIgluErrorIgluError, loaderIgluErrorInvalidSchema, loaderIgluErrorSchemaListNotFound,
-      loaderIgluErrorWrongType, loaderIgluErrorNotAnArray, loaderIgluErrorMissingInValue)
+    Gen.oneOf(
+      loaderIgluErrorIgluError,
+      loaderIgluErrorInvalidSchema,
+      loaderIgluErrorSchemaListNotFound,
+      loaderIgluErrorWrongType,
+      // loaderIgluErrorNotAnArray, // removed because of https://github.com/snowplow/snowplow-badrows/issues/83
+     loaderIgluErrorMissingInValue
+   )
 
   def loaderRecoveryError: Gen[FailureDetails.LoaderRecoveryError] =
     Gen.oneOf(loaderRecoveryErrorRuntimeError, loaderRecoveryErrorParsingError)
@@ -200,12 +206,15 @@ object FailureDetailsGen {
       expected  <- CommonGen.strGen(256, Gen.asciiPrintableChar)
     } yield FailureDetails.LoaderIgluError.WrongType(schemaKey, value, expected)
 
+  /*
+  // Removed because of https://github.com/snowplow/snowplow-badrows/issues/83
   private val loaderIgluErrorNotAnArray: Gen[FailureDetails.LoaderIgluError.NotAnArray] =
     for {
       schemaKey <- CommonGen.schemaKey
       value     <- CommonGen.jsonGen
       expected  <- CommonGen.strGen(256, Gen.asciiPrintableChar)
     } yield FailureDetails.LoaderIgluError.NotAnArray(schemaKey, value, expected)
+  */
 
   private val loaderIgluErrorMissingInValue: Gen[FailureDetails.LoaderIgluError.MissingInValue] =
     for {
