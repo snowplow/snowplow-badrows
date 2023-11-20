@@ -1,3 +1,8 @@
+Version 2.3.0 (2023-11-20)
+--------------------------
+Serialize bad rows to bytes (#85)
+Deserializer for self-describing bad row (#84)
+
 Version 2.2.1 (2023-05-31)
 --------------------------
 Use new versions of bad row schemas effected from supersededBy change (#79)
